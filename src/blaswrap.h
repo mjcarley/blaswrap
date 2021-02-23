@@ -26,6 +26,9 @@ extern gdouble dnrm2_(gint *N, gdouble *x, gint *incx) ;
 extern void dgemv_(gchar *trans, gint *m, gint *n, gdouble *alpha,
 		   gdouble *A, gint *lda, gdouble *v, gint *incx,
 		   gdouble *beta, gdouble *y, gint *incy) ;
+extern void sgemv_(gchar *trans, gint *m, gint *n, gfloat *alpha,
+		   gfloat *A, gint *lda, gfloat *v, gint *incx,
+		   gfloat *beta, gfloat *y, gint *incy) ;
 
 extern void zgemv_(gchar *trans, gint *m, gint *n, gdouble *alpha,
 		   gdouble *A, gint *lda, gdouble *v, gint *incx,
@@ -46,6 +49,11 @@ extern void dgemm_(gchar *transa, gchar *transb,
 		   gdouble *A, gint *lda,
 		   gdouble *B, gint *ldb,
 		   gdouble *beta, gdouble *C, gint *ldc) ;
+extern void sgemm_(gchar *transa, gchar *transb,
+		   gint *m, gint *n, gint *k, gfloat *alpha,
+		   gfloat *A, gint *lda,
+		   gfloat *B, gint *ldb,
+		   gfloat *beta, gfloat *C, gint *ldc) ;
 extern void zgemm_(gchar *transa, gchar *transb,
 		   gint *m, gint *n, gint *k, gdouble *alpha,
 		   gdouble *A, gint *lda,
@@ -111,12 +119,34 @@ extern void    zaxpy_(gint *n,
 	     &(_bt),(_y),&(_incy)) ;					\
     }									\
   } while (0)
-    
+
+#define blaswrap_sgemv(_t,_m,_n,_al,_A,_lda,_x,_incx,_bt,_y,_incy)	\
+  do {									\
+    if ( (_t) ) {							\
+      sgemv_("N",&(_n),&(_m),&(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     &(_bt),(_y),&(_incy)) ;					\
+    } else {								\
+      sgemv_("T",&(_n),&(_m),&(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     &(_bt),(_y),&(_incy)) ;					\
+    }									\
+  } while (0)
+
+#define blaswrap_zgemv(_t,_m,_n,_al,_A,_lda,_x,_incx,_bt,_y,_incy)	\
+  do {									\
+    if ( ((_t) == TRUE) ) {						\
+      zgemv_("N",&(_n),&(_m),(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     (_bt),(_y),&(_incy)) ;					\
+    } else {								\
+      zgemv_("T",&(_n),&(_m),(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     (_bt),(_y),&(_incy)) ;					\
+    }									\
+  } while (0)
+
 /* C := al*A*B + bt*C */
 #define blaswrap_dgemm(_ta,_tb,_m,_n,_k,_al,_A,_lda,_B,_ldb,_bt,_C,_ldc) \
   do {									\
-    if ( !_ta ) {							\
-      if ( !_tb ) {							\
+    if ( !(_ta) ) {							\
+      if ( !(_tb) ) {							\
 	dgemm_("N","N", &(_n),&(_m),&(_k),&(_al),(_B),&(_ldb),		\
 	       (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;			\
     } else {								\
@@ -127,5 +157,18 @@ extern void    zaxpy_(gint *n,
   }									\
   } while (0)
   
+#define blaswrap_sgemm(_ta,_tb,_m,_n,_k,_al,_A,_lda,_B,_ldb,_bt,_C,_ldc) \
+  do {									\
+    if ( !(_ta) ) {							\
+      if ( !(_tb) ) {							\
+	sgemm_("N","N", &(_n),&(_m),&(_k),&(_al),(_B),&(_ldb),		\
+	       (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;			\
+    } else {								\
+      g_assert_not_reached() ;						\
+    }									\
+  } else {								\
+    g_assert_not_reached() ;						\
+  }									\
+  } while (0)
 
 #endif /*BLAS_WRAP_H_INCLUDED*/
