@@ -143,18 +143,22 @@ extern void    zaxpy_(gint *n,
   } while (0)
 
 /* C := al*A*B + bt*C */
+/* A [m x k] leading dimension lda*/
+/* B [k x n] leading dimension ldb*/
+/* C [m x n] leading dimension ldc*/
 #define blaswrap_dgemm(_ta,_tb,_m,_n,_k,_al,_A,_lda,_B,_ldb,_bt,_C,_ldc) \
   do {									\
     if ( !(_ta) ) {							\
       if ( !(_tb) ) {							\
 	dgemm_("N","N", &(_n),&(_m),&(_k),&(_al),(_B),&(_ldb),		\
 	       (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;			\
+      } else {								\
+	dgemm_("T","N", &(_n),&(_m),&(_k),&(_al),(_B),&(_ldb),		\
+	       (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;			\
+      }									\
     } else {								\
       g_assert_not_reached() ;						\
     }									\
-  } else {								\
-    g_assert_not_reached() ;						\
-  }									\
   } while (0)
   
 #define blaswrap_sgemm(_ta,_tb,_m,_n,_k,_al,_A,_lda,_B,_ldb,_bt,_C,_ldc) \
@@ -163,12 +167,13 @@ extern void    zaxpy_(gint *n,
       if ( !(_tb) ) {							\
 	sgemm_("N","N", &(_n),&(_m),&(_k),&(_al),(_B),&(_ldb),		\
 	       (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;			\
+      } else {								\
+	sgemm_("T","N", &(_n),&(_m),&(_k),&(_al),(_B),&(_ldb),		\
+	       (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;			\
+      }									\
     } else {								\
       g_assert_not_reached() ;						\
     }									\
-  } else {								\
-    g_assert_not_reached() ;						\
-  }									\
   } while (0)
 
 #endif /*BLAS_WRAP_H_INCLUDED*/

@@ -49,6 +49,13 @@ gint matrix_matrix_multiply_d(gdouble *A, gdouble *B, gint m, gint n, gint k,
 gint matrix_matrix_multiply_f(gfloat *A, gfloat *B, gint m, gint n, gint k,
 			      gint lda, gint ldb, gfloat al, gfloat bt,
 			      gfloat *C, gint ldc) ;
+gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
+				   gint incx, gint incy, gint incz) ;
+gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
+				   gint incx, gint incy, gint incz) ;
+gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz) ;
+gint matrix_multiply_test_f(gint nr, gint nc, gint incx, gint incy, gint incz) ;
+gint matrix_multiply_test_z(gint nr, gint nc, gint incx, gint incy, gint incz) ;
 
 gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz)
 
@@ -217,8 +224,8 @@ gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
 				   gint incx, gint incy, gint incz)
 
 {
-  gdouble B[2048], A[2048], C[2048], D[2048] ;
-  gdouble x[128], y[128], z[128], al, bt, err ;
+  gdouble B[2048], A[2048], C[2048], D[2048], Bt[2048] ;
+  gdouble al, bt, err ;
   gint i, j, lda, ldb, ldc ;
 
   lda = k + incx - 1 ; ldb = n + incy - 1 ; ldc = n + incz - 1 ;
@@ -247,8 +254,24 @@ gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
     }
   }
 
-  fprintf(stderr, "maximum error: %lg\n", err) ;
-  
+  fprintf(stderr, "plain error: %lg\n", err) ;
+  matrix_transpose_d(Bt, B, k, ldb) ;
+  memcpy(D, C, m*ldc*sizeof(gdouble)) ;
+
+  /*B:  k x n*/
+  matrix_matrix_multiply_d(A, B, m, n, k, lda, ldb, al, bt, D, ldc) ;
+  /*Bt: n x k*/
+  blaswrap_dgemm(FALSE, TRUE, m, n, k, al, A, lda, Bt, k, bt, C, ldc) ;
+
+  err = 0.0 ;
+  for ( i = 0 ; i < m ; i ++ ) {
+    for ( j = 0 ; j < k ; j ++ ) {
+      err = MAX(err, fabs(C[i*ldc+j]-D[i*ldc+j])) ;
+    }
+  }
+
+  fprintf(stderr, "transposed error: %lg\n", err) ;
+
   return 0 ;
 }
 
@@ -256,8 +279,8 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
 				   gint incx, gint incy, gint incz)
 
 {
-  gfloat B[2048], A[2048], C[2048], D[2048] ;
-  gfloat x[128], y[128], z[128], al, bt, err ;
+  gfloat B[2048], A[2048], C[2048], D[2048], Bt[2048] ;
+  gfloat al, bt, err ;
   gint i, j, lda, ldb, ldc ;
 
   lda = k + incx - 1 ; ldb = n + incy - 1 ; ldc = n + incz - 1 ;
@@ -286,7 +309,23 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
     }
   }
 
-  fprintf(stderr, "maximum error: %g\n", err) ;
+  fprintf(stderr, "plain error: %g\n", err) ;
+  matrix_transpose_f(Bt, B, k, ldb) ;
+  memcpy(D, C, m*ldc*sizeof(gfloat)) ;
+
+  /*B:  k x n*/
+  matrix_matrix_multiply_f(A, B, m, n, k, lda, ldb, al, bt, D, ldc) ;
+  /*Bt: n x k*/
+  blaswrap_sgemm(FALSE, TRUE, m, n, k, al, A, lda, Bt, k, bt, C, ldc) ;
+
+  err = 0.0 ;
+  for ( i = 0 ; i < m ; i ++ ) {
+    for ( j = 0 ; j < k ; j ++ ) {
+      err = MAX(err, fabs(C[i*ldc+j]-D[i*ldc+j])) ;
+    }
+  }
+
+  fprintf(stderr, "transposed error: %g\n", err) ;
   
   return 0 ;
 }

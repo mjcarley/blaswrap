@@ -56,7 +56,6 @@ gint matrix_vector_mul_d(gdouble *A, gint nr, gint nc,
   return 0 ;
 }
 
-
 gint matrix_transpose_d(gdouble *B, gdouble *A, gint nr, gint nc)
 
 {
@@ -76,6 +75,12 @@ gint matrix_matrix_multiply_d(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gint lda, gint ldb, gdouble al, gdouble bt,
 			      gdouble *C, gint ldc)
 
+/*
+  A: m x k
+  B: k x n
+  C: m x n
+*/
+  
 {
   gint ii, jj, kk ;
 
