@@ -107,7 +107,7 @@ if test "$echo_cflags" = "yes"; then
     echo $blaswrap_cppflags $blaswrap_cflags
 fi
 if test "$echo_libs" = "yes"; then
-    blaswrap_libs="-L${exec_prefix}/lib -lblaswrap @LIBS@ -lm $blaswrap_libs"
+    blaswrap_libs="@LIBS@ -lm $blaswrap_libs"
     blaswrap_libs=`uniquify "$blaswrap_libs"`
     echo ${blaswrap_libs}
 fi

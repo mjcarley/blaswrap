@@ -330,6 +330,41 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
   return 0 ;
 }
 
+gint triangular_solve_test_d(gint n)
+
+{
+  gdouble *A, *x, *y, *z, al, bt, err ;
+  gint i, j, one = 1, info ;
+  
+  fprintf(stderr, "double-precision triangular solve\n") ;
+  fprintf(stderr, "n = %d\n", n) ;
+
+  A = (gdouble *)g_malloc(n*n*sizeof(gdouble)) ;
+  x = (gdouble *)g_malloc(n  *sizeof(gdouble)) ;
+  y = (gdouble *)g_malloc(n  *sizeof(gdouble)) ;
+  z = (gdouble *)g_malloc(n  *sizeof(gdouble)) ;
+  
+  fprintf(stderr, "upper-triangular solve\n") ;
+  for ( i = 0 ; i < n ; i ++ ) {
+    for ( j = 0 ; j < i ; j ++ ) A[i*n+j] = 0.0 ;
+    for ( j = i ; j < n ; j ++ ) A[i*n+j] = g_random_double() ;
+    x[i] = y[i] = g_random_double() ;
+  }
+  /*upper triangular, not-transposed*/
+  blaswrap_dtrtrs(TRUE, FALSE, FALSE, n, one, A, n, y, n, &info) ;
+
+  al = 1.0 ; bt = 0.0 ;
+  blaswrap_dgemv(FALSE, n, n, al, A, n, y, one, bt, z, one) ;
+
+  err = 0.0 ;
+  for ( i = 0 ; i < n ; i ++ ) {
+    err = MAX(err, fabs(x[i] - z[i])) ;
+  }
+  fprintf(stderr, "maximum error: %lg\n", err) ;
+  
+  return 0 ;
+}
+
 gint main(gint argc, gchar **argv)
 
 {
@@ -367,6 +402,8 @@ gint main(gint argc, gchar **argv)
   fprintf(stderr, "\n") ;
   matrix_multiply_test_z(m, n, incx, incy, incz) ;
   fprintf(stderr, "\n") ;
+
+  triangular_solve_test_d(n) ;
   
   return 0 ;
 }

@@ -15,13 +15,13 @@
  * along with BLASWRAP.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef BLAS_WRAP_H_INCLUDED 
-#define BLAS_WRAP_H_INCLUDED
+#ifndef BLASWRAP_H_INCLUDED 
+#define BLASWRAP_H_INCLUDED
 
 #include <glib.h>
 
-extern void dswap_(gint *N, gdouble *dx, gint *incx, gdouble*dy, gint *incy) ;
-extern gdouble dnrm2_(gint *N, gdouble *x, gint *incx) ;
+extern void dswap_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy) ;
+extern void sswap_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy) ;
 
 extern void dgemv_(gchar *trans, gint *m, gint *n, gdouble *alpha,
 		   gdouble *A, gint *lda, gdouble *v, gint *incx,
@@ -60,21 +60,44 @@ extern void zgemm_(gchar *transa, gchar *transb,
 		   gdouble *B, gint *ldb,
 		   gdouble *beta, gdouble *C, gint *ldc) ;
 
-extern gdouble dscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
+extern void drotg_(gdouble *da, gdouble *db, gdouble *c, gdouble *s) ;
+extern void srotg_(gfloat *da, gfloat *db, gfloat *c, gfloat *s) ;
+
+extern void drot_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy,
+		  gdouble *C, gdouble *S) ;
+extern void srot_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy,
+		  gfloat *C, gfloat *S) ;
+
+extern gint dtrtrs_(gchar *uplo, gchar *trans, gchar *diag,
+		    gint *n, gint *nrhs, gdouble *a, gint *lda, gdouble *b,
+		    gint *ldb, gint *info) ;
+
+
+extern void dscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
+extern void sscal_(gint *n, gfloat  *da, gfloat  *dx, gint *incx) ;
 
 extern gdouble dasum_ (gint *n, gdouble *x, gint *incx) ;
 extern gdouble dzasum_(gint *n, gdouble *x, gint *incx) ;
-extern gdouble dnrm2_ (gint *n, gdouble *x, gint *incx) ;
 extern gdouble dznrm2_(gint *n, gdouble *x, gint *incx) ;
+extern gdouble dnrm2_ (gint *n, gdouble *x, gint *incx) ;
+extern gfloat  snrm2_ (gint *n, gfloat *x, gint *incx) ;
 extern gint    idamax_(gint *n, gdouble *x, gint *incx) ;
 extern gint    izamax_(gint *n, gdouble *x, gint *incx) ;
 extern gdouble ddot_  (gint *n, gdouble *x, gint *incx, 
 		       gdouble *y, gint *incy) ;
+extern gfloat  sdot_  (gint *n, gfloat *x, gint *incx, 
+		       gfloat *y, gint *incy) ;
 /* extern gsl_complex zdotu_ (gint *n, gdouble *x, gint *incx,  */
 /* 			   gdouble *y, gint *incy) ; */
+extern void    scopy_(gint *n, 
+		      gfloat *x, gint *incx,
+		      gfloat *y, gint *incy) ;
 extern void    dcopy_(gint *n, 
 		      gdouble *x, gint *incx,
 		      gdouble *y, gint *incy) ;
+extern void    saxpy_(gint *n, 
+		      gfloat *a, gfloat *x, gint *incx,
+		      gfloat *y, gint *incy) ;
 extern void    daxpy_(gint *n, 
 		      gdouble *a, gdouble *x, gint *incx,
 		      gdouble *y, gint *incy) ;
@@ -87,22 +110,32 @@ extern void    zaxpy_(gint *n,
 /* copy x into y */
 #define blaswrap_dcopy(_n,_x,_strx,_y,_stry)	\
   dcopy_(&(_n),(_x),&(_strx),(_y),&(_stry))
+#define blaswrap_scopy(_n,_x,_strx,_y,_stry)	\
+  scopy_(&(_n),(_x),&(_strx),(_y),&(_stry))
 
 /* x := x*al */
 #define blaswrap_dscal(_n,_al,_x,_strx) dscal_(&(_n),&(_al),(_x),&(_strx))
+#define blaswrap_sscal(_n,_al,_x,_strx) sscal_(&(_n),&(_al),(_x),&(_strx))
 
 /* swap x and y */
 #define blaswrap_dswap(_n,_x,_strx,_y,_stry)	\
   dswap_(&(_n),(_x),&(_strx),(_y),&(_stry))
+#define blaswrap_sswap(_n,_x,_strx,_y,_stry)	\
+  sswap_(&(_n),(_x),&(_strx),(_y),&(_stry))
 
 /*x'*x*/
 #define blaswrap_dnrm2(_n,_x,_incx) dnrm2_(&(_n),(_x),&(_incx))
+#define blaswrap_snrm2(_n,_x,_incx) snrm2_(&(_n),(_x),&(_incx))
 
 /* sum x[i]*y[i] */
 #define blaswrap_ddot(_n,_x,_strx,_y,_stry)	\
   ddot_(&(_n), (_x), &(_strx), (_y), &(_stry)) 
+#define blaswrap_sdot(_n,_x,_strx,_y,_stry)	\
+  sdot_(&(_n), (_x), &(_strx), (_y), &(_stry)) 
 
 /* y := y + a*x */
+#define blaswrap_saxpy(_n,_a,_x,_strx,_y,_stry)		\
+  saxpy_(&(_n), &(_a), (_x), &(_strx), (_y), &(_stry))
 #define blaswrap_daxpy(_n,_a,_x,_strx,_y,_stry)		\
   daxpy_(&(_n), &(_a), (_x), &(_strx), (_y), &(_stry))
 
@@ -176,4 +209,42 @@ extern void    zaxpy_(gint *n,
     }									\
   } while (0)
 
-#endif /*BLAS_WRAP_H_INCLUDED*/
+/*Givens rotations*/
+#define blaswrap_drotg(_a,_b,_c,_s)					\
+  do {									\
+  gdouble _ta = _a, _tb = _b ;						\
+  drotg_(&(_ta),&(_tb),(_c),(_s)) ;					\
+  } while (0)
+#define blaswrap_srotg(_a,_b,_c,_s)					\
+  do {									\
+  gfloat _ta = _a, _tb = _b ;						\
+  srotg_(&(_ta),&(_tb),(_c),(_s)) ;					\
+  } while (0)
+
+/*triangular system solves*/
+#define blaswrap_dtrtrs(_upper,_trans,_diag,_n,_nrhs,_a,_lda,_b,_ldb,_info) \
+  do {									\
+    gchar _upstr[1], _tstr[1], _dstr[1] ;				\
+    _dstr[0] = ( _diag == TRUE ? 'U' : 'N') ;				\
+    if ( (_upper) ) {							\
+      if ( !(_trans) ) {						\
+	_upstr[0] = 'L' ; _tstr[0] = 'T' ;				\
+      }	else {								\
+	g_assert_not_reached() ;					\
+      }									\
+    }									\
+    if ( (!_upper) ) {							\
+      if ( !(_trans) ) {						\
+	g_assert_not_reached() ;					\
+	_upstr[0] = 'L' ; _tstr[0] = 'N' ;				\
+      } else {								\
+	g_assert_not_reached() ;					\
+      }									\
+    }									\
+    dtrtrs_(_upstr,_tstr,_dstr,&(_n),&(_nrhs),(_a),&(_lda),(_b),&(_ldb),(_info)) ;  \
+  }  while (0) 
+
+    /* _upstr[0] = ( _upper == TRUE ? 'U' : 'L') ;				\ */
+    /* _tstr[0] = ( _trans == TRUE ? 'N' : 'T') ;				\ */
+
+#endif /*BLASWRAP_H_INCLUDED*/
