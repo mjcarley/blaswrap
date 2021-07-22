@@ -244,7 +244,4 @@ extern void    zaxpy_(gint *n,
     dtrtrs_(_upstr,_tstr,_dstr,&(_n),&(_nrhs),(_a),&(_lda),(_b),&(_ldb),(_info)) ;  \
   }  while (0) 
 
-    /* _upstr[0] = ( _upper == TRUE ? 'U' : 'L') ;				\ */
-    /* _tstr[0] = ( _trans == TRUE ? 'N' : 'T') ;				\ */
-
 #endif /*BLASWRAP_H_INCLUDED*/
