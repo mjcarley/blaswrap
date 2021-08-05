@@ -67,11 +67,23 @@ extern void drot_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy,
 		  gdouble *C, gdouble *S) ;
 extern void srot_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy,
 		  gfloat *C, gfloat *S) ;
-
-extern gint dtrtrs_(gchar *uplo, gchar *trans, gchar *diag,
+extern void dtrtrs_(gchar *uplo, gchar *trans, gchar *diag,
 		    gint *n, gint *nrhs, gdouble *a, gint *lda, gdouble *b,
 		    gint *ldb, gint *info) ;
 
+extern void dtpsv_(gchar *uplo, gchar *trans, gchar *diag, gint *n,
+		   gdouble *ap, gdouble *x, gint *incx) ;
+
+extern void dtptrs_(gchar *uplo, gchar *trans,gchar *diag, gint *n,
+		    gint *nrhs, gdouble *ap, gdouble *b, gint *ldb,
+		    gint *info) ;
+extern void dgesvd_(gchar *jobu, gchar *jobvt, gint *m, gint *n,
+		    gdouble *a, gint *lda, gdouble *s, gdouble *u,
+		    gint *ldu, gdouble *vt,
+		    gint *ldvt, gdouble *work, gint *lwork, gint *info) ;
+
+/*LDL factorization*/
+extern void dsptrf_(gchar *uplo, gint *N, gdouble *A, gint *ipiv, gint *info) ;
 
 extern void dscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
 extern void sscal_(gint *n, gfloat  *da, gfloat  *dx, gint *incx) ;
