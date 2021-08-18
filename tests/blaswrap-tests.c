@@ -224,7 +224,7 @@ gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
 				   gint incx, gint incy, gint incz)
 
 {
-  gdouble B[2048], A[2048], C[2048], D[2048], Bt[2048] ;
+  gdouble B[2048], A[2048], C[2048], D[2048], Bt[2048], At[2048] ;
   gdouble al, bt, err ;
   gint i, j, lda, ldb, ldc ;
 
@@ -254,7 +254,9 @@ gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
     }
   }
 
-  fprintf(stderr, "plain error: %lg\n", err) ;
+  fprintf(stderr, "A x B error: %lg\n", err) ;
+
+  /*A*B^T*/
   matrix_transpose_d(Bt, B, k, ldb) ;
   memcpy(D, C, m*ldc*sizeof(gdouble)) ;
 
@@ -264,14 +266,31 @@ gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
   blaswrap_dgemm(FALSE, TRUE, m, n, k, al, A, lda, Bt, k, bt, C, ldc) ;
 
   err = 0.0 ;
+  for ( i = 0 ; i < n ; i ++ ) {
+    for ( j = 0 ; j < k ; j ++ ) {
+      err = MAX(err, fabs(C[i*ldc+j]-D[i*ldc+j])) ;
+    }
+  }
+
+  fprintf(stderr, "A x B^T error: %lg\n", err) ;
+
+  /*A^T*B*/
+  matrix_transpose_d(At, A, m, lda) ;
+  memcpy(D, C, m*ldc*sizeof(gdouble)) ;
+  /*A:  m x k*/
+  matrix_matrix_multiply_d(A, B, m, n, k, lda, ldb, al, bt, D, ldc) ;
+  /*At: k x m*/
+  blaswrap_dgemm(TRUE, FALSE, m, n, k, al, At, m, B, ldb, bt, C, ldc) ;
+
+  err = 0.0 ;
   for ( i = 0 ; i < m ; i ++ ) {
     for ( j = 0 ; j < k ; j ++ ) {
       err = MAX(err, fabs(C[i*ldc+j]-D[i*ldc+j])) ;
     }
   }
 
-  fprintf(stderr, "transposed error: %lg\n", err) ;
-
+  fprintf(stderr, "A^T x B error: %lg\n", err) ;
+  
   return 0 ;
 }
 
@@ -294,7 +313,7 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
 
   al = g_random_double() ;
   bt = g_random_double() ;
-  
+
   memcpy(D, C, m*ldc*sizeof(gfloat)) ;
 
   matrix_matrix_multiply_f(A, B, m, n, k, lda, ldb, al, bt, D, ldc) ;
@@ -309,7 +328,8 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
     }
   }
 
-  fprintf(stderr, "plain error: %g\n", err) ;
+  fprintf(stderr, "A x B error: %lg\n", err) ;
+
   matrix_transpose_f(Bt, B, k, ldb) ;
   memcpy(D, C, m*ldc*sizeof(gfloat)) ;
 
@@ -319,13 +339,14 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
   blaswrap_sgemm(FALSE, TRUE, m, n, k, al, A, lda, Bt, k, bt, C, ldc) ;
 
   err = 0.0 ;
-  for ( i = 0 ; i < m ; i ++ ) {
+  for ( i = 0 ; i < n ; i ++ ) {
     for ( j = 0 ; j < k ; j ++ ) {
       err = MAX(err, fabs(C[i*ldc+j]-D[i*ldc+j])) ;
+      /* fprintf(stderr, "%g %g\n", C[i*ldc+j], D[i*ldc+j]) ; */
     }
   }
 
-  fprintf(stderr, "transposed error: %g\n", err) ;
+  fprintf(stderr, "A x B^T error: %lg\n", err) ;
   
   return 0 ;
 }

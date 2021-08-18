@@ -202,7 +202,8 @@ extern void    zaxpy_(gint *n,
 	       (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;			\
       }									\
     } else {								\
-      g_assert_not_reached() ;						\
+      dgemm_("N","T", &(_n),&(_m),&(_k),&(_al),(_B),&(_ldb),		\
+	   (_A),&(_lda),&(_bt),(_C),&(_ldc)) ;				\
     }									\
   } while (0)
   
