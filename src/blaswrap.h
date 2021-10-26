@@ -20,7 +20,8 @@
 
 #include <glib.h>
 
-typedef struct {gdouble dat[2] ; } blaswrap_complex_t ;
+typedef struct {gdouble dat[2] ; } blaswrap_complex_double_t ;
+typedef struct {gfloat dat[2] ; } blaswrap_complex_float_t ;
 
 extern void dswap_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy) ;
 extern void sswap_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy) ;
@@ -101,8 +102,10 @@ extern gdouble ddot_  (gint *n, gdouble *x, gint *incx,
 		       gdouble *y, gint *incy) ;
 extern gfloat  sdot_  (gint *n, gfloat *x, gint *incx, 
 		       gfloat *y, gint *incy) ;
-extern blaswrap_complex_t zdotu_ (gint *n, gdouble *x, gint *incx,
-				  gdouble *y, gint *incy) ;
+extern blaswrap_complex_double_t zdotu_(gint *n, gdouble *x, gint *incx,
+					gdouble *y, gint *incy) ;
+extern blaswrap_complex_float_t cdotu_(gint *n, gfloat *x, gint *incx,
+				       gfloat *y, gint *incy) ;
 extern void    scopy_(gint *n, 
 		      gfloat *x, gint *incx,
 		      gfloat *y, gint *incy) ;
@@ -146,12 +149,18 @@ extern void    zaxpy_(gint *n,
   ddot_(&(_n), (_x), &(_strx), (_y), &(_stry)) 
 #define blaswrap_sdot(_n,_x,_strx,_y,_stry)	\
   sdot_(&(_n), (_x), &(_strx), (_y), &(_stry)) 
+#define blaswrap_cdotu(_out,_n,_x,_strx,_y,_stry)		\
+  do {								\
+    g_assert_not_reached() ; /*unchecked code*/			\
+    blaswrap_complex_float_t _z ;				\
+    _z = cdotu_(&(_n), (_x), &(_strx), (_y), &(_stry)) ;	\
+    (_out)[0] = _z.dat[0] ; (_out)[1] = _z.dat[1] ;		\
+  } while (0) 
 #define blaswrap_zdotu(_out,_n,_x,_strx,_y,_stry)		\
   do {								\
-    blaswrap_complex_t _z ;					\
+    blaswrap_complex_double_t _z ;				\
     _z = zdotu_(&(_n), (_x), &(_strx), (_y), &(_stry)) ;	\
-    (_out)[0] = _z.dat[0] ;					\
-    (_out)[1] = _z.dat[1] ;					\
+    (_out)[0] = _z.dat[0] ; (_out)[1] = _z.dat[1] ;		\
   } while (0) 
 
   
