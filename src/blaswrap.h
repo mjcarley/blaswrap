@@ -47,6 +47,10 @@ extern void zgetrf_(gint *m, gint *n, gdouble *A, gint *lda, gint *ip,
 extern void dgetrf_(gint *m, gint *n, gdouble *A, gint *lda, gint *ip,
 		    gint *info) ;
 
+extern void dgbmv_(gchar *trans, gint *m, gint *n, gint *kl, gint *ku,
+		   gdouble *alpha, gdouble *A, gint *lda, gdouble *x,
+		   gint *incx, gdouble *beta, gdouble *y, gint *incy) ;
+
 extern void dgemm_(gchar *transa, gchar *transb,
 		   gint *m, gint *n, gint *k, gdouble *alpha,
 		   gdouble *A, gint *lda,
@@ -62,6 +66,11 @@ extern void zgemm_(gchar *transa, gchar *transb,
 		   gdouble *A, gint *lda,
 		   gdouble *B, gint *ldb,
 		   gdouble *beta, gdouble *C, gint *ldc) ;
+extern void cgemm_(gchar *transa, gchar *transb,
+		   gint *m, gint *n, gint *k, gfloat *alpha,
+		   gfloat *A, gint *lda,
+		   gfloat *B, gint *ldb,
+		   gfloat *beta, gfloat *C, gint *ldc) ;
 
 extern void drotg_(gdouble *da, gdouble *db, gdouble *c, gdouble *s) ;
 extern void srotg_(gfloat *da, gfloat *db, gfloat *c, gfloat *s) ;
@@ -84,6 +93,10 @@ extern void dgesvd_(gchar *jobu, gchar *jobvt, gint *m, gint *n,
 		    gdouble *a, gint *lda, gdouble *s, gdouble *u,
 		    gint *ldu, gdouble *vt,
 		    gint *ldvt, gdouble *work, gint *lwork, gint *info) ;
+
+extern void dgels_(gchar *trans, gint *m, gint *n, gint *nrhs,
+		   gdouble *a, gint *lda, gdouble *b, gint *ldb,
+		   gdouble *work, gint *lwork, gint *info) ;
 
 /*LDL factorization*/
 extern void dsptrf_(gchar *uplo, gint *N, gdouble *A, gint *ipiv, gint *info) ;
@@ -118,6 +131,9 @@ extern void    saxpy_(gint *n,
 extern void    daxpy_(gint *n, 
 		      gdouble *a, gdouble *x, gint *incx,
 		      gdouble *y, gint *incy) ;
+extern void    caxpy_(gint *n, 
+		      gfloat *a, gfloat *x, gint *incx,
+		      gfloat *y, gint *incy) ;
 extern void    zaxpy_(gint *n, 
 		      gdouble *a, gdouble *x, gint *incx,
 		      gdouble *y, gint *incy) ;
@@ -169,6 +185,10 @@ extern void    zaxpy_(gint *n,
   saxpy_(&(_n), &(_a), (_x), &(_strx), (_y), &(_stry))
 #define blaswrap_daxpy(_n,_a,_x,_strx,_y,_stry)		\
   daxpy_(&(_n), &(_a), (_x), &(_strx), (_y), &(_stry))
+#define blaswrap_caxpy(_n,_a,_x,_strx,_y,_stry)		\
+  caxpy_(&(_n), (_a), (_x), &(_strx), (_y), &(_stry))
+#define blaswrap_zaxpy(_n,_a,_x,_strx,_y,_stry)		\
+  zaxpy_(&(_n), (_a), (_x), &(_strx), (_y), &(_stry))
 
 /* y := al*A*x + bt*y */
 
@@ -205,6 +225,16 @@ extern void    zaxpy_(gint *n,
 	     (_bt),(_y),&(_incy)) ;					\
     }									\
   } while (0)
+
+#define blaswrap_dgbmv(_t,_m,_n,_kl,_ku,_al,_A,_lda,_x,_incx,_bt,_y,_incy) \
+  do {									\
+  if ((_t) == TRUE ) {							\
+    g_assert_not_reached() ; /*untested code*/				\
+  } else {								\
+    dgbmv_("T", &(_m), &(_n), &(_kl), &(_ku), &(_al), (_A), &(_lda),	\
+	   (_x), &(_incx), &(_bt), (_y), &(_incy)) ;			\
+  }									\
+  } while (0) 
 
 /* C := al*A*B + bt*C */
 /* A [m x k] leading dimension lda*/
