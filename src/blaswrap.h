@@ -74,12 +74,16 @@ extern void cgemm_(gchar *transa, gchar *transb,
 
 extern void drotg_(gdouble *da, gdouble *db, gdouble *c, gdouble *s) ;
 extern void srotg_(gfloat *da, gfloat *db, gfloat *c, gfloat *s) ;
+extern void zrotg_(gdouble *da, gdouble *db, gdouble *c, gdouble *s) ;
 
 extern void drot_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy,
 		  gdouble *C, gdouble *S) ;
 extern void srot_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy,
 		  gfloat *C, gfloat *S) ;
 extern void dtrtrs_(gchar *uplo, gchar *trans, gchar *diag,
+		    gint *n, gint *nrhs, gdouble *a, gint *lda, gdouble *b,
+		    gint *ldb, gint *info) ;
+extern void ztrtrs_(gchar *uplo, gchar *trans, gchar *diag,
 		    gint *n, gint *nrhs, gdouble *a, gint *lda, gdouble *b,
 		    gint *ldb, gint *info) ;
 
@@ -103,6 +107,7 @@ extern void dsptrf_(gchar *uplo, gint *N, gdouble *A, gint *ipiv, gint *info) ;
 
 extern void dscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
 extern void sscal_(gint *n, gfloat  *da, gfloat  *dx, gint *incx) ;
+extern void zscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
 
 extern gdouble dasum_ (gint *n, gdouble *x, gint *incx) ;
 extern gdouble dzasum_(gint *n, gdouble *x, gint *incx) ;
@@ -125,6 +130,9 @@ extern void    scopy_(gint *n,
 extern void    dcopy_(gint *n, 
 		      gdouble *x, gint *incx,
 		      gdouble *y, gint *incy) ;
+extern void    zcopy_(gint *n, 
+		      gdouble *x, gint *incx,
+		      gdouble *y, gint *incy) ;
 extern void    saxpy_(gint *n, 
 		      gfloat *a, gfloat *x, gint *incx,
 		      gfloat *y, gint *incy) ;
@@ -145,10 +153,13 @@ extern void    zaxpy_(gint *n,
   dcopy_(&(_n),(_x),&(_strx),(_y),&(_stry))
 #define blaswrap_scopy(_n,_x,_strx,_y,_stry)	\
   scopy_(&(_n),(_x),&(_strx),(_y),&(_stry))
+#define blaswrap_zcopy(_n,_x,_strx,_y,_stry)	\
+  zcopy_(&(_n),(_x),&(_strx),(_y),&(_stry))
 
 /* x := x*al */
 #define blaswrap_dscal(_n,_al,_x,_strx) dscal_(&(_n),&(_al),(_x),&(_strx))
 #define blaswrap_sscal(_n,_al,_x,_strx) sscal_(&(_n),&(_al),(_x),&(_strx))
+#define blaswrap_zscal(_n,_al,_x,_strx) dscal_(&(_n), (_al),(_x),&(_strx))
 
 /* swap x and y */
 #define blaswrap_dswap(_n,_x,_strx,_y,_stry)	\
@@ -159,6 +170,7 @@ extern void    zaxpy_(gint *n,
 /*x'*x*/
 #define blaswrap_dnrm2(_n,_x,_incx) dnrm2_(&(_n),(_x),&(_incx))
 #define blaswrap_snrm2(_n,_x,_incx) snrm2_(&(_n),(_x),&(_incx))
+#define blaswrap_dznrm2(_n,_x,_incx) dznrm2_(&(_n),(_x),&(_incx))
 
 /* sum x[i]*y[i] */
 #define blaswrap_ddot(_n,_x,_strx,_y,_stry)	\
@@ -282,6 +294,8 @@ extern void    zaxpy_(gint *n,
   gfloat _ta = _a, _tb = _b ;						\
   srotg_(&(_ta),&(_tb),(_c),(_s)) ;					\
   } while (0)
+#define blaswrap_zrotg(_a,_b,_c,_s)					\
+  zrotg_((_a),(_b),(_c),(_s)) ;						
 
 /*triangular system solves*/
 #define blaswrap_dtrtrs(_upper,_trans,_diag,_n,_nrhs,_a,_lda,_b,_ldb,_info) \
@@ -304,6 +318,27 @@ extern void    zaxpy_(gint *n,
       }									\
     }									\
     dtrtrs_(_upstr,_tstr,_dstr,&(_n),&(_nrhs),(_a),&(_lda),(_b),&(_ldb),(_info)) ;  \
+  }  while (0) 
+#define blaswrap_ztrtrs(_upper,_trans,_diag,_n,_nrhs,_a,_lda,_b,_ldb,_info) \
+  do {									\
+    gchar _upstr[1], _tstr[1], _dstr[1] ;				\
+    _dstr[0] = ( _diag == TRUE ? 'U' : 'N') ;				\
+    if ( (_upper) ) {							\
+      if ( !(_trans) ) {						\
+	_upstr[0] = 'L' ; _tstr[0] = 'T' ;				\
+      }	else {								\
+	g_assert_not_reached() ;					\
+      }									\
+    }									\
+    if ( (!_upper) ) {							\
+      if ( !(_trans) ) {						\
+	g_assert_not_reached() ;					\
+	_upstr[0] = 'L' ; _tstr[0] = 'N' ;				\
+      } else {								\
+	g_assert_not_reached() ;					\
+      }									\
+    }									\
+    ztrtrs_(_upstr,_tstr,_dstr,&(_n),&(_nrhs),(_a),&(_lda),(_b),&(_ldb),(_info)) ; \
   }  while (0) 
 
 #endif /*BLASWRAP_H_INCLUDED*/

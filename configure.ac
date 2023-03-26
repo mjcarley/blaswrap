@@ -105,7 +105,7 @@ else
       AC_MSG_ERROR([GLIB directory ($with_glib) not present or not configured])
     fi
 
-    # For use in wmpi-config
+    # For use in blaswrap-config
     glib_cflags=`$GLIB_CONFIG --cflags`
     glib_thread_cflags=`$GLIB_CONFIG --cflags gthread`
     glib_module_cflags=`$GLIB_CONFIG --cflags gmodule`
@@ -134,12 +134,22 @@ else
   fi
 fi
 
+PKG_CHECK_MODULES([BLIS], [blis], [has_blis=yes], [has_blis=no])
+
 AC_CHECK_LIB(m, cos)
 AC_PROG_F77
 AC_F77_LIBRARY_LDFLAGS
 AC_F77_DUMMY_MAIN
 AC_F77_WRAPPERS
-ACX_BLAS
+
+##if test x$has_blis = xyes ; then
+##   CFLAGS="$CFLAGS $BLIS_CFLAGS"
+##   LIBS="$LIBS $BLIS_LIBS $FLIBS"
+##   AC_CHECK_LIB(flame, dtrtrs_)
+##else
+   ACX_BLAS
+   LIBS="$glib_libs $BLAS_LIBS $FLIBS"
+##fi
 
 CFLAGS="$CFLAGS $glib_cflags"
 LDFLAGS="$LDFLAGS $glib_libs"
@@ -147,8 +157,6 @@ LDFLAGS="$LDFLAGS $glib_libs"
 AC_SUBST(CFLAGS)
 AC_SUBST(LDFLAGS)
 #AC_SUBST(DX_RULES)
-
-LIBS="$glib_libs $BLAS_LIBS $FLIBS"
 
 AC_CONFIG_FILES([
 Makefile

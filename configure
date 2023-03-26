@@ -638,6 +638,8 @@ FLIBS
 ac_ct_F77
 FFLAGS
 F77
+BLIS_LIBS
+BLIS_CFLAGS
 GLIB_CONFIG
 GLIB_COMPILE_RESOURCES
 GLIB_MKENUMS
@@ -806,6 +808,8 @@ GLIB_GENMARSHAL
 GOBJECT_QUERY
 GLIB_MKENUMS
 GLIB_COMPILE_RESOURCES
+BLIS_CFLAGS
+BLIS_LIBS
 F77
 FFLAGS'
 
@@ -1482,6 +1486,8 @@ Some influential environment variables:
   GLIB_COMPILE_RESOURCES
               value of glib_compile_resources for gio-2.0, overriding
               pkg-config
+  BLIS_CFLAGS C compiler flags for BLIS, overriding pkg-config
+  BLIS_LIBS   linker flags for BLIS, overriding pkg-config
   F77         Fortran 77 compiler command
   FFLAGS      Fortran 77 compiler flags
 
@@ -13807,7 +13813,7 @@ rm -f core conftest.err conftest.$ac_objext \
       as_fn_error $? "GLIB directory ($with_glib) not present or not configured" "$LINENO" 5
     fi
 
-    # For use in wmpi-config
+    # For use in blaswrap-config
     glib_cflags=`$GLIB_CONFIG --cflags`
     glib_thread_cflags=`$GLIB_CONFIG --cflags gthread`
     glib_module_cflags=`$GLIB_CONFIG --cflags gmodule`
@@ -13834,6 +13840,78 @@ rm -f core conftest.err conftest.$ac_objext \
 
 
   fi
+fi
+
+
+pkg_failed=no
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for blis" >&5
+$as_echo_n "checking for blis... " >&6; }
+
+if test -n "$BLIS_CFLAGS"; then
+    pkg_cv_BLIS_CFLAGS="$BLIS_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"blis\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "blis") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_BLIS_CFLAGS=`$PKG_CONFIG --cflags "blis" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$BLIS_LIBS"; then
+    pkg_cv_BLIS_LIBS="$BLIS_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { $as_echo "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"blis\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "blis") 2>&5
+  ac_status=$?
+  $as_echo "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_BLIS_LIBS=`$PKG_CONFIG --libs "blis" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+	        BLIS_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "blis" 2>&1`
+        else
+	        BLIS_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "blis" 2>&1`
+        fi
+	# Put the nasty error message in config.log where it belongs
+	echo "$BLIS_PKG_ERRORS" >&5
+
+	has_blis=no
+elif test $pkg_failed = untried; then
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: no" >&5
+$as_echo "no" >&6; }
+	has_blis=no
+else
+	BLIS_CFLAGS=$pkg_cv_BLIS_CFLAGS
+	BLIS_LIBS=$pkg_cv_BLIS_LIBS
+        { $as_echo "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+$as_echo "yes" >&6; }
+	has_blis=yes
 fi
 
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for cos in -lm" >&5
@@ -17719,6 +17797,12 @@ ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
 
+##if test x$has_blis = xyes ; then
+##   CFLAGS="$CFLAGS $BLIS_CFLAGS"
+##   LIBS="$LIBS $BLIS_LIBS $FLIBS"
+##   AC_CHECK_LIB(flame, dtrtrs_)
+##else
+
 
 
 acx_blas_ok=no
@@ -18688,6 +18772,8 @@ else
 
 fi
 
+   LIBS="$glib_libs $BLAS_LIBS $FLIBS"
+##fi
 
 CFLAGS="$CFLAGS $glib_cflags"
 LDFLAGS="$LDFLAGS $glib_libs"
@@ -18695,8 +18781,6 @@ LDFLAGS="$LDFLAGS $glib_libs"
 
 
 #AC_SUBST(DX_RULES)
-
-LIBS="$glib_libs $BLAS_LIBS $FLIBS"
 
 ac_config_files="$ac_config_files Makefile src/Makefile src/blaswrap-config tests/Makefile"
 
