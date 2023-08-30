@@ -76,6 +76,12 @@ extern void drotg_(gdouble *da, gdouble *db, gdouble *c, gdouble *s) ;
 extern void srotg_(gfloat *da, gfloat *db, gfloat *c, gfloat *s) ;
 extern void zrotg_(gdouble *da, gdouble *db, gdouble *c, gdouble *s) ;
 
+extern void dgeqp3_(gint *m, gint *n, gdouble *A, gint *lda, gint *jpvt,
+		    gdouble *tau, gdouble *work, gint *lwork, gint *info) ;
+
+extern void dlarf_(gchar *side, gint *m, gint *n, gdouble *v, gint *incv,
+		   gdouble *tau, gdouble *C, gint *ldc, gdouble *work) ;
+
 extern void drot_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy,
 		  gdouble *C, gdouble *S) ;
 extern void srot_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy,
@@ -86,6 +92,8 @@ extern void dtrtrs_(gchar *uplo, gchar *trans, gchar *diag,
 extern void ztrtrs_(gchar *uplo, gchar *trans, gchar *diag,
 		    gint *n, gint *nrhs, gdouble *a, gint *lda, gdouble *b,
 		    gint *ldb, gint *info) ;
+extern void dtrtri_(gchar *uplo, gchar *diag, gint *n, gdouble *a,
+		    gint *lda, gint *info) ;
 
 extern void dtpsv_(gchar *uplo, gchar *trans, gchar *diag, gint *n,
 		   gdouble *ap, gdouble *x, gint *incx) ;
