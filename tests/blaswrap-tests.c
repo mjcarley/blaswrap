@@ -351,7 +351,7 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
   return 0 ;
 }
 
-gint triangular_solve_test_d(gint n)
+static gint triangular_solve_test_d(gint n)
 
 {
   gdouble *A, *x, *y, *z, al, bt, err ;

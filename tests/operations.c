@@ -24,6 +24,39 @@
 
 #include <blaswrap.h>
 
+gint random_matrix_d(gdouble *A, gint nr, gint nc) ;
+gint matrix_vector_mul_d(gdouble *A, gint nr, gint nc,
+			 gdouble *x, gint incx,
+			 gdouble *y, gint incy,
+			 gdouble al, gdouble bt) ;
+gint matrix_transpose_d(gdouble *B, gdouble *A, gint nr, gint nc) ;
+gint matrix_matrix_multiply_d(gdouble *A, gdouble *B, gint m, gint n, gint k,
+			      gint lda, gint ldb, gdouble al, gdouble bt,
+			      gdouble *C, gint ldc) ;
+gint random_matrix_f(gfloat *A, gint nr, gint nc) ;
+gint matrix_vector_mul_f(gfloat *A, gint nr, gint nc,
+			 gfloat *x, gint incx,
+			 gfloat *y, gint incy,
+			 gfloat al, gfloat bt) ;
+gint matrix_vector_mul_c(gfloat *A, gint nr, gint nc,
+			 gfloat *x, gint incx,
+			 gfloat *y, gint incy,
+			 gfloat *al, gfloat *bt) ;
+gint matrix_transpose_f(gfloat *B, gfloat *A, gint nr, gint nc) ;
+gint matrix_matrix_multiply_f(gfloat *A, gfloat *B, gint m, gint n, gint k,
+			      gint lda, gint ldb, gfloat al, gfloat bt,
+			      gfloat *C, gint ldc) ;
+gint random_matrix_z(gdouble *A, gint nr, gint nc) ;
+gint matrix_vector_mul_z(gdouble *A, gint nr, gint nc,
+			 gdouble *x, gint incx,
+			 gdouble *y, gint incy,
+			 gdouble *al, gdouble *bt) ;
+gint matrix_transpose_z(gdouble *B, gdouble *A, gint nr, gint nc) ;
+gint matrix_matrix_multiply_z(gdouble *A, gdouble *B, gint m, gint n, gint k,
+			      gint lda, gint ldb, gdouble *al, gdouble *bt,
+			      gdouble *C, gint ldc) ;
+
+
 gint random_matrix_d(gdouble *A, gint nr, gint nc)
 
 {
@@ -59,7 +92,6 @@ gint matrix_vector_mul_d(gdouble *A, gint nr, gint nc,
 gint matrix_transpose_d(gdouble *B, gdouble *A, gint nr, gint nc)
 
 {
-  gdouble t ;
   gint i, j ;
 
   for ( i = 0 ; i < nr ; i ++ ) {
@@ -160,7 +192,6 @@ gint matrix_vector_mul_c(gfloat *A, gint nr, gint nc,
 gint matrix_transpose_f(gfloat *B, gfloat *A, gint nr, gint nc)
 
 {
-  gfloat t ;
   gint i, j ;
 
   for ( i = 0 ; i < nr ; i ++ ) {
@@ -233,7 +264,6 @@ gint matrix_vector_mul_z(gdouble *A, gint nr, gint nc,
 gint matrix_transpose_z(gdouble *B, gdouble *A, gint nr, gint nc)
 
 {
-  gdouble t ;
   gint i, j ;
 
   for ( i = 0 ; i < nr ; i ++ ) {
@@ -251,7 +281,7 @@ gint matrix_matrix_multiply_z(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gdouble *C, gint ldc)
 
 {
-  gint ii, jj, kk ;
+  /* gint ii, jj, kk ; */
 
   /* for ( ii = 0 ; ii < m ; ii ++ ) { */
   /*   for ( jj = 0 ; jj < n ; jj ++ ) { */

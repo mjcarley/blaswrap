@@ -3,6 +3,7 @@
 
 blas_libs="@blas_libs@"
 blaswrap_cppflags="@CPPFLAGS@"
+blaswrap_cflags="@CFLAGS@"
 
 prefix=@prefix@
 exec_prefix=@exec_prefix@
