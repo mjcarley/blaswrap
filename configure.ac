@@ -1,4 +1,4 @@
-AC_INIT([blaswrap], 0.1)
+AC_INIT([blaswrap],[0.1])
 AC_CONFIG_SRCDIR([src/blaswrap.h])
 AC_CONFIG_MACRO_DIR([m4])
 
@@ -36,7 +36,7 @@ AM_INIT_AUTOMAKE(subdir-objects)
 ##$PACKAGE, $VERSION, no-define)
 
 # Specify a configuration file
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_HEADERS([config.h])
 
 AC_DEFINE_UNQUOTED(BLASWRAP_MAJOR_VERSION, $BLASWRAP_MAJOR_VERSION, [Major version])
 AC_DEFINE_UNQUOTED(BLASWRAP_MINOR_VERSION, $BLASWRAP_MINOR_VERSION, [Minor version])
@@ -45,7 +45,7 @@ AC_DEFINE_UNQUOTED(BLASWRAP_INTERFACE_AGE, $BLASWRAP_INTERFACE_AGE, [Interface a
 AC_DEFINE_UNQUOTED(BLASWRAP_BINARY_AGE, $BLASWRAP_BINARY_AGE, [Binary age])
 
 dnl Initialize libtool
-AM_PROG_LIBTOOL
+LT_INIT
 
 dnl Initialize maintainer mode
 #AM_MAINTAINER_MODE
@@ -58,7 +58,7 @@ if test x$GCC = xyes ; then
 fi
 
 AC_PROG_AWK
-AC_ISC_POSIX
+AC_SEARCH_LIBS([strerror],[cposix])
 AC_HEADER_STDC
 
 AM_PATH_GLIB_2_0(2.4.0, has_glib2=yes, has_glib2=no, gthread gmodule)
