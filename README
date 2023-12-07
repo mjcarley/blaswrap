@@ -1,5 +1,0 @@
-BLASWRAP is a (n incomplete) set of wrappers to ease the calling of
-BLAS routines from C, mainly for use in my other numerical codes. It
-defines a set of macros which rearrange function arguments so that
-BLAS calls will work with C matrix ordering.
-
