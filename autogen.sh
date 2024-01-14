@@ -1,5 +1,3 @@
 #! /bin/sh
 
-aclocal -I . \
-&& automake --add-missing \
-&& autoconf
+autoreconf --force --install
