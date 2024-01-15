@@ -1,7 +1,6 @@
 AC_INIT([blaswrap],[0.1])
 AC_CONFIG_SRCDIR([src/blaswrap.h])
 AC_CONFIG_MACRO_DIR([m4])
-m4_include([acx_blas.m4])
 
 BLASWRAP_MAJOR_VERSION=0
 BLASWRAP_MINOR_VERSION=1
