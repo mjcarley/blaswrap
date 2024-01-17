@@ -69,7 +69,23 @@ AC_F77_LIBRARY_LDFLAGS
 AC_F77_DUMMY_MAIN
 AC_F77_WRAPPERS
 
-ACX_BLAS()
+ACX_BLAS([], [
+  echo \#################################################################
+  echo \#
+  echo \# No BLAS located. If you do not have a BLAS installed on your
+  echo \# system, you should install one. A suitable option is
+  echo \# OpenBLAS, which is available from
+  echo \#  
+  echo \# https://www.openblas.net/
+  echo \#
+  echo \# If you do have a BLAS installed but it is not being located,
+  echo \#
+  echo \# you may need to specify the a link option with the LDFLAGS
+  echo \# environment variable and/or use the --with-blas= option
+  echo \# to specify the name of the BLAS library to be used.
+  echo \#################################################################
+  exit
+])
 CFLAGS="$CFLAGS $GLIB_CFLAGS"
 LIBS="$GLIB_LIBS $BLAS_LIBS $LIBS $FLIBS"
 
@@ -82,10 +98,6 @@ Makefile
 src/Makefile
 src/blaswrap-config
 tests/Makefile])
-
-#doc/Makefile])
-
-#doc/html/Makefile])
 
 AC_OUTPUT
 
