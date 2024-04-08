@@ -79,13 +79,22 @@ ACX_BLAS([], [
   echo \# https://www.openblas.net/
   echo \#
   echo \# If you do have a BLAS installed but it is not being located,
-  echo \#
   echo \# you may need to specify the a link option with the LDFLAGS
   echo \# environment variable and/or use the --with-blas= option
   echo \# to specify the name of the BLAS library to be used.
   echo \#################################################################
   exit
 ])
+ACX_LAPACK([], [
+  echo \#################################################################
+  echo \#
+  echo \# LAPACK not located. If LAPACK is installed on your system but
+  echo \# is not being located by the configure script, you may need to
+  echo \# specify its location using the --with-lapack= option
+  echo \#################################################################
+  exit
+])
+
 CFLAGS="$CFLAGS $GLIB_CFLAGS"
 LIBS="$GLIB_LIBS $BLAS_LIBS $LIBS $FLIBS"
 
