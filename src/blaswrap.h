@@ -1,7 +1,7 @@
 /* This file is part of BLASWRAP, a set of wrappers for using Fortran
  * BLAS in C programs.
  *
- * Copyright (C) 2020, 2021 Michael Carley
+ * Copyright (C) 2020, 2021, 2024 Michael Carley
  *
  * BLASWRAP is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by

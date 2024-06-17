@@ -43,7 +43,7 @@
 #define HAVE_INTTYPES_H 1
 
 /* Define if you have LAPACK library. */
-#define HAVE_LAPACK 1
+/* #undef HAVE_LAPACK */
 
 /* Define to 1 if you have the `m' library (-lm). */
 #define HAVE_LIBM 1

@@ -85,7 +85,9 @@ ACX_BLAS([], [
   echo \#################################################################
   exit
 ])
-ACX_LAPACK([], [
+ACX_LAPACK([
+  echo LAPACK found at $LAPACK_LIBS
+	], [
   echo \#################################################################
   echo \#
   echo \# LAPACK not located. If LAPACK is installed on your system but
