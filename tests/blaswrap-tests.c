@@ -25,8 +25,8 @@
 #include <blaswrap.h>
 
 gint random_matrix_d(gdouble *A, gint nr, gint nc, gboolean sym) ;
-gint random_matrix_z(gdouble *A, gint nr, gint nc) ;
-gint random_matrix_f(gfloat *A, gint nr, gint nc) ;
+gint random_matrix_z(gdouble *A, gint nr, gint nc, gboolean sym) ;
+gint random_matrix_f(gfloat *A, gint nr, gint nc, gboolean sym) ;
 gint matrix_transpose_d(gdouble *B, gdouble *A, gint nr, gint nc) ;
 gint matrix_transpose_z(gdouble *B, gdouble *A, gint nr, gint nc) ;
 gint matrix_transpose_f(gfloat *B, gfloat *A, gint nr, gint nc) ;
@@ -43,8 +43,6 @@ gint matrix_vector_mul_z(gdouble *A, gint nr, gint nc,
 			 gdouble *x, gint incx,
 			 gdouble *y, gint incy,
 			 gdouble *al, gdouble *bt) ;
-gint matrix_symmetric_multiply_test_d(gint n,
-				      gint incx, gint incy, gint incz) ;
 
 gint matrix_matrix_multiply_d(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gint lda, gint ldb, gdouble al, gdouble bt,
@@ -60,6 +58,13 @@ gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz) ;
 gint matrix_multiply_test_f(gint nr, gint nc, gint incx, gint incy, gint incz) ;
 gint matrix_multiply_test_z(gint nr, gint nc, gint incx, gint incy, gint incz) ;
 
+gint matrix_symmetric_multiply_test_d(gint n,
+				      gint incx, gint incy, gint incz) ;
+gint matrix_symmetric_multiply_test_f(gint n,
+				      gint incx, gint incy, gint incz) ;
+gint matrix_symmetric_multiply_test_z(gint n,
+				      gint incx, gint incy, gint incz) ;
+
 gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz)
 
 {
@@ -68,7 +73,6 @@ gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz)
 
   fprintf(stderr, "double-precision real matrix-vector multiply\n") ;
   fprintf(stderr, "[%dx%d] x [%d]\n", nr, nc, nc) ;
-  /* incx = 3 ; incy = 2 ; */
   
   random_matrix_d(A, nr, nc, FALSE) ;
   random_matrix_d(x, 1, nc*incx, FALSE) ;
@@ -120,11 +124,9 @@ gint matrix_multiply_test_z(gint nr, gint nc, gint incx, gint incy, gint incz)
   fprintf(stderr, "double-precision complex matrix-vector multiply\n") ;
   fprintf(stderr, "[%dx%d] x [%d]\n", nr, nc, nc) ;
   
-  /* incx = 3 ; incy = 2 ; incz = 4 ; */
-  
-  random_matrix_z(A, nr, nc) ;
-  random_matrix_z(x, 1, nc*incx) ;
-  random_matrix_z(y, nr*incy, 1) ;
+  random_matrix_z(A, nr, nc, FALSE) ;
+  random_matrix_z(x, 1, nc*incx, FALSE) ;
+  random_matrix_z(y, nr*incy, 1, FALSE) ;
 
   for ( i = 0 ; i < nr ; i ++ ) {
     z[2*i*incz+0] = y[2*i*incy+0] ;
@@ -182,9 +184,9 @@ gint matrix_multiply_test_f(gint nr, gint nc, gint incx, gint incy, gint incz)
   fprintf(stderr, "single-precision real matrix-vector multiply\n") ;
   fprintf(stderr, "[%dx%d] x [%d]\n", nr, nc, nc) ;
   
-  random_matrix_f(A, nr, nc) ;
-  random_matrix_f(x, 1, nc*incx) ;
-  random_matrix_f(y, nr*incy, 1) ;
+  random_matrix_f(A, nr, nc, FALSE) ;
+  random_matrix_f(x, 1, nc*incx, FALSE) ;
+  random_matrix_f(y, nr*incy, 1, FALSE) ;
 
   memcpy(z, y, nr*incy*sizeof(gdouble)) ;
 
@@ -232,7 +234,6 @@ gint matrix_symmetric_multiply_test_d(gint n,
 
   fprintf(stderr, "double-precision real symmetric matrix-vector multiply\n") ;
   fprintf(stderr, "[%dx%d] x [%d]\n", n, n, n) ;
-  /* incx = 3 ; incy = 2 ; */
   
   random_matrix_d(A, n, n, TRUE) ;
   random_matrix_d(x, 1, n*incx, FALSE) ;
@@ -267,6 +268,132 @@ gint matrix_symmetric_multiply_test_d(gint n,
 
   fprintf(stderr, "lower error     : %lg\n", err) ;
 
+  return 0 ;
+}
+
+gint matrix_symmetric_multiply_test_f(gint n,
+				      gint incx, gint incy, gint incz)
+
+{
+  gfloat A[2048], x[128], y[128], z[128], al, bt, err ;
+  gint i ;
+
+  fprintf(stderr, "single-precision real symmetric matrix-vector multiply\n") ;
+  fprintf(stderr, "[%dx%d] x [%d]\n", n, n, n) ;
+  
+  random_matrix_f(A, n, n, TRUE) ;
+  random_matrix_f(x, 1, n*incx, FALSE) ;
+  random_matrix_f(y, n*incy, 1, FALSE) ;
+
+  memcpy(z, y, n*incy*sizeof(gfloat)) ;
+
+  al = g_random_double() ; 
+  bt = g_random_double() ; 
+
+  matrix_vector_mul_f(A, n, n, x, incx, y, incy, al, bt) ;
+
+  blaswrap_ssymv(TRUE, n, al, A, n, x, incx, bt, z, incy) ;
+
+  err = 0.0 ;
+  
+  for ( i = 0 ; i < n ; i ++ ) {
+    err = MAX(fabs(z[i*incy]-y[i*incy]), err) ;
+  }
+
+  fprintf(stderr, "upper error     : %lg\n", err) ;
+
+  memcpy(z, y, n*incy*sizeof(gfloat)) ;
+  matrix_vector_mul_f(A, n, n, x, incx, y, incy, al, bt) ;
+  blaswrap_ssymv(FALSE, n, al, A, n, x, incx, bt, z, incy) ;
+
+  err = 0.0 ;
+  
+  for ( i = 0 ; i < n ; i ++ ) {
+    err = MAX(fabs(z[i*incy]-y[i*incy]), err) ;
+  }
+
+  fprintf(stderr, "lower error     : %lg\n", err) ;
+
+  return 0 ;
+}
+
+gint matrix_symmetric_multiply_test_z(gint n, gint incx, gint incy, gint incz)
+
+{
+  gdouble A[2048], x[1024], y[1024], z[1024], al[2], bt[2], err ;
+  gint i ;
+
+  fprintf(stderr,
+	  "double-precision complex symmetric matrix-vector multiply\n") ;
+  fprintf(stderr, "[%dx%d] x [%d]\n", n, n, n) ;
+  
+  random_matrix_z(A, n, n, TRUE) ;
+  random_matrix_z(x, 1, n*incx, FALSE) ;
+  random_matrix_z(y, n*incy, 1, FALSE) ;
+
+  for ( i = 0 ; i < n ; i ++ ) {
+    z[2*i*incz+0] = y[2*i*incy+0] ;
+    z[2*i*incz+1] = y[2*i*incy+1] ;
+  }
+    
+  al[0] = g_random_double() ; al[1] = g_random_double() ; 
+  bt[0] = g_random_double() ; bt[1] = g_random_double() ; 
+
+  matrix_vector_mul_z(A, n, n, x, incx, y, incy, al, bt) ;
+
+  blaswrap_zsymv(TRUE, n, al, A, n, x, incx, bt, z, incz) ;
+
+  err = 0.0 ;
+  for ( i = 0 ; i < n ; i ++ ) {
+    err = MAX((z[i*2*incz+0]-y[i*2*incy+0])*(z[i*2*incz+0]-y[i*2*incy+0]) +
+	      (z[i*2*incz+1]-y[i*2*incy+1])*(z[i*2*incz+1]-y[i*2*incy+1]),
+	      err) ;
+  }
+  err = sqrt(err) ;
+  
+  fprintf(stderr, "upper error     : %lg\n", err) ;
+
+  for ( i = 0 ; i < n ; i ++ ) {
+    z[2*i*incz+0] = y[2*i*incy+0] ;
+    z[2*i*incz+1] = y[2*i*incy+1] ;
+  }
+
+  matrix_vector_mul_z(A, n, n, x, incx, y, incy, al, bt) ;
+
+  blaswrap_zsymv(FALSE, n, al, A, n, x, incx, bt, z, incz) ;
+
+  err = 0.0 ;
+  for ( i = 0 ; i < n ; i ++ ) {
+    err = MAX((z[i*2*incz+0]-y[i*2*incy+0])*(z[i*2*incz+0]-y[i*2*incy+0]) +
+	      (z[i*2*incz+1]-y[i*2*incy+1])*(z[i*2*incz+1]-y[i*2*incy+1]),
+	      err) ;
+  }
+  err = sqrt(err) ;
+  
+  fprintf(stderr, "lower error     : %lg\n", err) ;
+  
+  /* /\*set up for transpose multiplication*\/ */
+  /* for ( i = 0 ; i < nc ; i ++ ) { */
+  /*   z[2*i*incz+0] = x[2*i*incx+0] ; */
+  /*   z[2*i*incz+1] = x[2*i*incx+1] ; */
+  /* } */
+
+  /* blaswrap_zgemv(TRUE, nr, nc, al, A, nc, y, incy, bt, z, incz) ; */
+
+  /* matrix_transpose_z(B, A, nr, nc) ; */
+
+  /* matrix_vector_mul_z(B, nc, nr, y, incy, x, incx, al, bt) ; */
+  
+  /* err = 0.0 ; */
+  /* for ( i = 0 ; i < nc; i ++ ) { */
+  /*   err = MAX((z[i*2*incz+0]-x[i*2*incx+0])*(z[i*2*incz+0]-x[i*2*incx+0]) + */
+  /* 	      (z[i*2*incz+1]-x[i*2*incx+1])*(z[i*2*incz+1]-x[i*2*incx+1]), */
+  /* 	      err) ; */
+  /* } */
+  /* err = sqrt(err) ; */
+
+  /* fprintf(stderr, "transposed error: %lg\n", err) ; */
+  
   return 0 ;
 }
 
@@ -357,9 +484,9 @@ gint matrix_matrix_multiply_test_f(gint m, gint n, gint k,
   fprintf(stderr, "single-precision real matrix-matrix multiply\n") ;
   fprintf(stderr, "[%dx%d(%d)] x [%dx%d(%d)]\n", m, k, lda, k, n, ldb) ;
   
-  random_matrix_f(A, m, lda) ;
-  random_matrix_f(B, k, ldb) ;
-  random_matrix_f(C, m, ldc) ;
+  random_matrix_f(A, m, lda, FALSE) ;
+  random_matrix_f(B, k, ldb, FALSE) ;
+  random_matrix_f(C, m, ldc, FALSE) ;
 
   al = g_random_double() ;
   bt = g_random_double() ;
@@ -505,6 +632,10 @@ gint main(gint argc, char **argv)
 
   if ( test == 3 || test == -1 ) {
     matrix_symmetric_multiply_test_d(n, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
+    matrix_symmetric_multiply_test_f(n, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
+    matrix_symmetric_multiply_test_z(n, incx, incy, incz) ;
     fprintf(stderr, "\n") ;
 
     if ( test > 0 ) return 0 ;

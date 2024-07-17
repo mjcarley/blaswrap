@@ -40,6 +40,12 @@ extern void zgemv_(char *trans, gint *m, gint *n, gdouble *alpha,
 extern void dsymv_(char *uplo, gint *n, gdouble *alpha, gdouble *A,
 		   gint *lda, gdouble *x, gint *incx, gdouble *beta,
 		   gdouble *y, gint *incy) ;
+extern void ssymv_(char *uplo, gint *n, gfloat *alpha, gfloat *A,
+		   gint *lda, gfloat *x, gint *incx, gfloat *beta,
+		   gfloat *y, gint *incy) ;
+extern void zsymv_(char *uplo, gint *n, gdouble *alpha, gdouble *A,
+		   gint *lda, gdouble *x, gint *incx, gdouble *beta,
+		   gdouble *y, gint *incy) ;
 
 extern void dgetri_(gint *n, gdouble *A, gint *lda, gint *ip,
 		    gdouble *work, gint *lwork, gint *info) ;
@@ -271,6 +277,28 @@ extern void    zaxpy_(gint *n,
     } else {								\
       dsymv_("L",&(_n),&(_al),(_A),&(_lda),(_x),&(_incx),		\
 	     &(_bt),(_y),&(_incy)) ;					\
+    }									\
+  } while (0)
+
+#define blaswrap_ssymv(_u,_n,_al,_A,_lda,_x,_incx,_bt,_y,_incy)		\
+  do {									\
+    if ( (_u) ) {							\
+      ssymv_("U",&(_n),&(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     &(_bt),(_y),&(_incy)) ;					\
+    } else {								\
+      ssymv_("L",&(_n),&(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     &(_bt),(_y),&(_incy)) ;					\
+    }									\
+  } while (0)
+
+#define blaswrap_zsymv(_u,_n,_al,_A,_lda,_x,_incx,_bt,_y,_incy)		\
+  do {									\
+    if ( (_u) ) {							\
+      zsymv_("U",&(_n),(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     (_bt),(_y),&(_incy)) ;					\
+    } else {								\
+      zsymv_("L",&(_n),(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     (_bt),(_y),&(_incy)) ;					\
     }									\
   } while (0)
 
