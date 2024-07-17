@@ -1,6 +1,6 @@
 /* This file is part of BLASWRAP, a set of C wrappers for BLAS routines
  *
- * Copyright (C) 2020 Michael Carley
+ * Copyright (C) 2020, 2024 Michael Carley
  *
  * BLASWRAP is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@
 
 #include <blaswrap.h>
 
-gint random_matrix_d(gdouble *A, gint nr, gint nc) ;
+gint random_matrix_d(gdouble *A, gint nr, gint nc, gboolean sym) ;
 gint random_matrix_z(gdouble *A, gint nr, gint nc) ;
 gint random_matrix_f(gfloat *A, gint nr, gint nc) ;
 gint matrix_transpose_d(gdouble *B, gdouble *A, gint nr, gint nc) ;
@@ -43,6 +43,9 @@ gint matrix_vector_mul_z(gdouble *A, gint nr, gint nc,
 			 gdouble *x, gint incx,
 			 gdouble *y, gint incy,
 			 gdouble *al, gdouble *bt) ;
+gint matrix_symmetric_multiply_test_d(gint n,
+				      gint incx, gint incy, gint incz) ;
+
 gint matrix_matrix_multiply_d(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gint lda, gint ldb, gdouble al, gdouble bt,
 			      gdouble *C, gint ldc) ;
@@ -67,9 +70,9 @@ gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz)
   fprintf(stderr, "[%dx%d] x [%d]\n", nr, nc, nc) ;
   /* incx = 3 ; incy = 2 ; */
   
-  random_matrix_d(A, nr, nc) ;
-  random_matrix_d(x, 1, nc*incx) ;
-  random_matrix_d(y, nr*incy, 1) ;
+  random_matrix_d(A, nr, nc, FALSE) ;
+  random_matrix_d(x, 1, nc*incx, FALSE) ;
+  random_matrix_d(y, nr*incy, 1, FALSE) ;
 
   memcpy(z, y, nr*incy*sizeof(gdouble)) ;
 
@@ -220,6 +223,53 @@ gint matrix_multiply_test_f(gint nr, gint nc, gint incx, gint incy, gint incz)
   return 0 ;
 }
 
+gint matrix_symmetric_multiply_test_d(gint n,
+				      gint incx, gint incy, gint incz)
+
+{
+  gdouble A[2048], x[128], y[128], z[128], al, bt, err ;
+  gint i ;
+
+  fprintf(stderr, "double-precision real symmetric matrix-vector multiply\n") ;
+  fprintf(stderr, "[%dx%d] x [%d]\n", n, n, n) ;
+  /* incx = 3 ; incy = 2 ; */
+  
+  random_matrix_d(A, n, n, TRUE) ;
+  random_matrix_d(x, 1, n*incx, FALSE) ;
+  random_matrix_d(y, n*incy, 1, FALSE) ;
+
+  memcpy(z, y, n*incy*sizeof(gdouble)) ;
+
+  al = g_random_double() ; 
+  bt = g_random_double() ; 
+
+  matrix_vector_mul_d(A, n, n, x, incx, y, incy, al, bt) ;
+
+  blaswrap_dsymv(TRUE, n, al, A, n, x, incx, bt, z, incy) ;
+
+  err = 0.0 ;
+  
+  for ( i = 0 ; i < n ; i ++ ) {
+    err = MAX(fabs(z[i*incy]-y[i*incy]), err) ;
+  }
+
+  fprintf(stderr, "upper error     : %lg\n", err) ;
+
+  memcpy(z, y, n*incy*sizeof(gdouble)) ;
+  matrix_vector_mul_d(A, n, n, x, incx, y, incy, al, bt) ;
+  blaswrap_dsymv(TRUE, n, al, A, n, x, incx, bt, z, incy) ;
+
+  err = 0.0 ;
+  
+  for ( i = 0 ; i < n ; i ++ ) {
+    err = MAX(fabs(z[i*incy]-y[i*incy]), err) ;
+  }
+
+  fprintf(stderr, "lower error     : %lg\n", err) ;
+
+  return 0 ;
+}
+
 gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
 				   gint incx, gint incy, gint incz)
 
@@ -233,9 +283,9 @@ gint matrix_matrix_multiply_test_d(gint m, gint n, gint k,
   fprintf(stderr, "double-precision real matrix-matrix multiply\n") ;
   fprintf(stderr, "[%dx%d(%d)] x [%dx%d(%d)]\n", m, k, lda, k, n, ldb) ;
   
-  random_matrix_d(A, m, lda) ;
-  random_matrix_d(B, k, ldb) ;
-  random_matrix_d(C, m, ldc) ;
+  random_matrix_d(A, m, lda, FALSE) ;
+  random_matrix_d(B, k, ldb, FALSE) ;
+  random_matrix_d(C, m, ldc, FALSE) ;
 
   al = g_random_double() ;
   bt = g_random_double() ;
@@ -386,18 +436,33 @@ static gint triangular_solve_test_d(gint n)
   return 0 ;
 }
 
-gint main(gint argc, gchar **argv)
+static gint parse_test(char *str)
 
 {
-  gint m, n, k, incx, incy, incz ;
-  gchar ch, *progname ;
+  char *tests[] = {"matrix_vector", "matrix_matrix", "symmetric",
+    "triangular", NULL} ;
+  gint i ;
+
+  for ( i = 0 ; tests[i] != NULL ; i ++ ) {
+    if ( strcmp(tests[i], str) == 0 ) return i+1 ;
+  }
+
+  return 0 ;
+}  
+
+gint main(gint argc, char **argv)
+
+{
+  gint m, n, k, incx, incy, incz, test ;
+  char ch, *progname ;
 
   progname = g_strdup(g_path_get_basename(argv[0])) ;
   
   m = 13 ; n = 4 ; k = 17 ;
   incx = 1 ; incy = 1 ; incz = 1 ;
+  test = -1 ;
   
-  while ( (ch = getopt(argc, argv, "k:m:n:x:y:z:")) != EOF ) {
+  while ( (ch = getopt(argc, argv, "k:m:n:t:x:y:z:")) != EOF ) {
     switch (ch) {
     default:
       fprintf(stderr, "%s: option not recognized\n", progname) ;
@@ -406,25 +471,50 @@ gint main(gint argc, gchar **argv)
     case 'k': k = atoi(optarg) ; break ;
     case 'm': m = atoi(optarg) ; break ;
     case 'n': n = atoi(optarg) ; break ;
+    case 't': test = parse_test(optarg) ; break ;
     case 'x': incx = atoi(optarg) ; break ;
     case 'y': incy = atoi(optarg) ; break ;
     case 'z': incz = atoi(optarg) ; break ;
     }
   }
+
+  if ( test == 0 ) {
+    fprintf(stderr, "unrecognised test specified with -t option\n") ;
+    return 1 ;
+  }
   
-  matrix_matrix_multiply_test_d(m, n, k, incx, incy, incz) ;
-  fprintf(stderr, "\n") ;
-  matrix_matrix_multiply_test_f(m, n, k, incx, incy, incz) ;
-  fprintf(stderr, "\n") ;
+  if ( test == 1 || test == -1 ) {
+    matrix_multiply_test_d(m, n, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
+    matrix_multiply_test_f(m, n, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
+    matrix_multiply_test_z(m, n, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
 
-  matrix_multiply_test_d(m, n, incx, incy, incz) ;
-  fprintf(stderr, "\n") ;
-  matrix_multiply_test_f(m, n, incx, incy, incz) ;
-  fprintf(stderr, "\n") ;
-  matrix_multiply_test_z(m, n, incx, incy, incz) ;
-  fprintf(stderr, "\n") ;
+    if ( test > 0 ) return 0 ;
+  }
 
-  triangular_solve_test_d(n) ;
+  if ( test == 2 || test == -1 ) {
+    matrix_matrix_multiply_test_d(m, n, k, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
+    matrix_matrix_multiply_test_f(m, n, k, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
+
+    if ( test > 0 ) return 0 ;
+  }
+
+  if ( test == 3 || test == -1 ) {
+    matrix_symmetric_multiply_test_d(n, incx, incy, incz) ;
+    fprintf(stderr, "\n") ;
+
+    if ( test > 0 ) return 0 ;
+  }
+  
+  if ( test == 4 || test == -1 ) {
+    triangular_solve_test_d(n) ;
+
+    if ( test > 0 ) return 0 ;
+  }
   
   return 0 ;
 }

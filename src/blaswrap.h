@@ -26,16 +26,20 @@ typedef struct {gfloat dat[2] ; } blaswrap_complex_float_t ;
 extern void dswap_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy) ;
 extern void sswap_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy) ;
 
-extern void dgemv_(gchar *trans, gint *m, gint *n, gdouble *alpha,
+extern void dgemv_(char *trans, gint *m, gint *n, gdouble *alpha,
 		   gdouble *A, gint *lda, gdouble *v, gint *incx,
 		   gdouble *beta, gdouble *y, gint *incy) ;
-extern void sgemv_(gchar *trans, gint *m, gint *n, gfloat *alpha,
+extern void sgemv_(char *trans, gint *m, gint *n, gfloat *alpha,
 		   gfloat *A, gint *lda, gfloat *v, gint *incx,
 		   gfloat *beta, gfloat *y, gint *incy) ;
 
-extern void zgemv_(gchar *trans, gint *m, gint *n, gdouble *alpha,
+extern void zgemv_(char *trans, gint *m, gint *n, gdouble *alpha,
 		   gdouble *A, gint *lda, gdouble *v, gint *incx,
 		   gdouble *beta, gdouble *y, gint *incy) ;
+
+extern void dsymv_(char *uplo, gint *n, gdouble *alpha, gdouble *A,
+		   gint *lda, gdouble *x, gint *incx, gdouble *beta,
+		   gdouble *y, gint *incy) ;
 
 extern void dgetri_(gint *n, gdouble *A, gint *lda, gint *ip,
 		    gdouble *work, gint *lwork, gint *info) ;
@@ -47,26 +51,26 @@ extern void zgetrf_(gint *m, gint *n, gdouble *A, gint *lda, gint *ip,
 extern void dgetrf_(gint *m, gint *n, gdouble *A, gint *lda, gint *ip,
 		    gint *info) ;
 
-extern void dgbmv_(gchar *trans, gint *m, gint *n, gint *kl, gint *ku,
+extern void dgbmv_(char *trans, gint *m, gint *n, gint *kl, gint *ku,
 		   gdouble *alpha, gdouble *A, gint *lda, gdouble *x,
 		   gint *incx, gdouble *beta, gdouble *y, gint *incy) ;
 
-extern void dgemm_(gchar *transa, gchar *transb,
+extern void dgemm_(char *transa, char *transb,
 		   gint *m, gint *n, gint *k, gdouble *alpha,
 		   gdouble *A, gint *lda,
 		   gdouble *B, gint *ldb,
 		   gdouble *beta, gdouble *C, gint *ldc) ;
-extern void sgemm_(gchar *transa, gchar *transb,
+extern void sgemm_(char *transa, char *transb,
 		   gint *m, gint *n, gint *k, gfloat *alpha,
 		   gfloat *A, gint *lda,
 		   gfloat *B, gint *ldb,
 		   gfloat *beta, gfloat *C, gint *ldc) ;
-extern void zgemm_(gchar *transa, gchar *transb,
+extern void zgemm_(char *transa, char *transb,
 		   gint *m, gint *n, gint *k, gdouble *alpha,
 		   gdouble *A, gint *lda,
 		   gdouble *B, gint *ldb,
 		   gdouble *beta, gdouble *C, gint *ldc) ;
-extern void cgemm_(gchar *transa, gchar *transb,
+extern void cgemm_(char *transa, char *transb,
 		   gint *m, gint *n, gint *k, gfloat *alpha,
 		   gfloat *A, gint *lda,
 		   gfloat *B, gint *ldb,
@@ -79,39 +83,39 @@ extern void zrotg_(gdouble *da, gdouble *db, gdouble *c, gdouble *s) ;
 extern void dgeqp3_(gint *m, gint *n, gdouble *A, gint *lda, gint *jpvt,
 		    gdouble *tau, gdouble *work, gint *lwork, gint *info) ;
 
-extern void dlarf_(gchar *side, gint *m, gint *n, gdouble *v, gint *incv,
+extern void dlarf_(char *side, gint *m, gint *n, gdouble *v, gint *incv,
 		   gdouble *tau, gdouble *C, gint *ldc, gdouble *work) ;
 
 extern void drot_(gint *N, gdouble *dx, gint *incx, gdouble *dy, gint *incy,
 		  gdouble *C, gdouble *S) ;
 extern void srot_(gint *N, gfloat *dx, gint *incx, gfloat *dy, gint *incy,
 		  gfloat *C, gfloat *S) ;
-extern void dtrtrs_(gchar *uplo, gchar *trans, gchar *diag,
+extern void dtrtrs_(char *uplo, char *trans, char *diag,
 		    gint *n, gint *nrhs, gdouble *a, gint *lda, gdouble *b,
 		    gint *ldb, gint *info) ;
-extern void ztrtrs_(gchar *uplo, gchar *trans, gchar *diag,
+extern void ztrtrs_(char *uplo, char *trans, char *diag,
 		    gint *n, gint *nrhs, gdouble *a, gint *lda, gdouble *b,
 		    gint *ldb, gint *info) ;
-extern void dtrtri_(gchar *uplo, gchar *diag, gint *n, gdouble *a,
+extern void dtrtri_(char *uplo, char *diag, gint *n, gdouble *a,
 		    gint *lda, gint *info) ;
 
-extern void dtpsv_(gchar *uplo, gchar *trans, gchar *diag, gint *n,
+extern void dtpsv_(char *uplo, char *trans, char *diag, gint *n,
 		   gdouble *ap, gdouble *x, gint *incx) ;
 
-extern void dtptrs_(gchar *uplo, gchar *trans,gchar *diag, gint *n,
+extern void dtptrs_(char *uplo, char *trans,char *diag, gint *n,
 		    gint *nrhs, gdouble *ap, gdouble *b, gint *ldb,
 		    gint *info) ;
-extern void dgesvd_(gchar *jobu, gchar *jobvt, gint *m, gint *n,
+extern void dgesvd_(char *jobu, char *jobvt, gint *m, gint *n,
 		    gdouble *a, gint *lda, gdouble *s, gdouble *u,
 		    gint *ldu, gdouble *vt,
 		    gint *ldvt, gdouble *work, gint *lwork, gint *info) ;
 
-extern void dgels_(gchar *trans, gint *m, gint *n, gint *nrhs,
+extern void dgels_(char *trans, gint *m, gint *n, gint *nrhs,
 		   gdouble *a, gint *lda, gdouble *b, gint *ldb,
 		   gdouble *work, gint *lwork, gint *info) ;
 
 /*LDL factorization*/
-extern void dsptrf_(gchar *uplo, gint *N, gdouble *A, gint *ipiv, gint *info) ;
+extern void dsptrf_(char *uplo, gint *N, gdouble *A, gint *ipiv, gint *info) ;
 
 extern void dscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
 extern void sscal_(gint *n, gfloat  *da, gfloat  *dx, gint *incx) ;
@@ -256,6 +260,20 @@ extern void    zaxpy_(gint *n,
   }									\
   } while (0) 
 
+/* y := al*A*x + bt*y, A symmetric */
+
+/*upper n al A lda x strx bt y stry*/
+#define blaswrap_dsymv(_u,_n,_al,_A,_lda,_x,_incx,_bt,_y,_incy)		\
+  do {									\
+    if ( (_u) ) {							\
+      dsymv_("U",&(_n),&(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     &(_bt),(_y),&(_incy)) ;					\
+    } else {								\
+      dsymv_("L",&(_n),&(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     &(_bt),(_y),&(_incy)) ;					\
+    }									\
+  } while (0)
+
 /* C := al*A*B + bt*C */
 /* A [m x k] leading dimension lda*/
 /* B [k x n] leading dimension ldb*/
@@ -308,7 +326,7 @@ extern void    zaxpy_(gint *n,
 /*triangular system solves*/
 #define blaswrap_dtrtrs(_upper,_trans,_diag,_n,_nrhs,_a,_lda,_b,_ldb,_info) \
   do {									\
-    gchar _upstr[1], _tstr[1], _dstr[1] ;				\
+    char _upstr[1], _tstr[1], _dstr[1] ;				\
     _dstr[0] = ( _diag == TRUE ? 'U' : 'N') ;				\
     if ( (_upper) ) {							\
       if ( !(_trans) ) {						\
@@ -329,7 +347,7 @@ extern void    zaxpy_(gint *n,
   }  while (0) 
 #define blaswrap_ztrtrs(_upper,_trans,_diag,_n,_nrhs,_a,_lda,_b,_ldb,_info) \
   do {									\
-    gchar _upstr[1], _tstr[1], _dstr[1] ;				\
+    char _upstr[1], _tstr[1], _dstr[1] ;				\
     _dstr[0] = ( _diag == TRUE ? 'U' : 'N') ;				\
     if ( (_upper) ) {							\
       if ( !(_trans) ) {						\

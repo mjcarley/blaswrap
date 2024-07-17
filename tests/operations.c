@@ -24,7 +24,7 @@
 
 #include <blaswrap.h>
 
-gint random_matrix_d(gdouble *A, gint nr, gint nc) ;
+gint random_matrix_d(gdouble *A, gint nr, gint nc, gboolean sym) ;
 gint matrix_vector_mul_d(gdouble *A, gint nr, gint nc,
 			 gdouble *x, gint incx,
 			 gdouble *y, gint incy,
@@ -57,12 +57,27 @@ gint matrix_matrix_multiply_z(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gdouble *C, gint ldc) ;
 
 
-gint random_matrix_d(gdouble *A, gint nr, gint nc)
+gint random_matrix_d(gdouble *A, gint nr, gint nc, gboolean sym)
 
 {
-  gint i ;
+  gint i, j ;
 
-  for ( i = 0 ; i < nr*nc ; i ++ ) A[i] = g_random_double() ;
+  if ( !sym ) {
+    for ( i = 0 ; i < nr*nc ; i ++ ) A[i] = g_random_double() ;
+    return 0 ;
+  }
+
+  if ( nr != nc ) {
+    g_error("%s: symmetric matrix must be square (nr = %d, nc = %d)",
+	    __FUNCTION__, nr, nc) ;
+  }
+
+  for ( i = 0 ; i < nc ; i ++ ) {
+    for ( j = i ; j < nc ; j ++ ) {
+      A[i*nc+j] = g_random_double() ;
+      A[j*nc+i] = A[i*nc+j] ;
+    }
+  }
   
   return 0 ;
 }
