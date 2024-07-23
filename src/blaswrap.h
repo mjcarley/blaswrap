@@ -121,7 +121,16 @@ extern void dgels_(char *trans, gint *m, gint *n, gint *nrhs,
 		   gdouble *work, gint *lwork, gint *info) ;
 
 /*LDL factorization*/
+extern void ssptrf_(char *uplo, gint *N, gfloat *A, gint *ipiv, gint *info) ;
 extern void dsptrf_(char *uplo, gint *N, gdouble *A, gint *ipiv, gint *info) ;
+extern void csptrf_(char *uplo, gint *N, gfloat *A, gint *ipiv, gint *info) ;
+extern void zsptrf_(char *uplo, gint *N, gdouble *A, gint *ipiv, gint *info) ;
+
+/*Cholesky factorisation of symmetric matrix*/
+extern void spotrf_(char *uplo, gint *n, gfloat *A, gint *lda, gint *info) ;
+extern void dpotrf_(char *uplo, gint *n, gdouble *A, gint *lda, gint *info) ;
+extern void cpotrf_(char *uplo, gint *n, gfloat *A, gint *lda, gint *info) ;
+extern void zpotrf_(char *uplo, gint *n, gdouble *A, gint *lda, gint *info) ;
 
 extern void dscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
 extern void sscal_(gint *n, gfloat  *da, gfloat  *dx, gint *incx) ;
@@ -133,6 +142,7 @@ extern gdouble dznrm2_(gint *n, gdouble *x, gint *incx) ;
 extern gdouble dnrm2_ (gint *n, gdouble *x, gint *incx) ;
 extern gfloat  snrm2_ (gint *n, gfloat *x, gint *incx) ;
 extern gint    idamax_(gint *n, gdouble *x, gint *incx) ;
+extern gint    isamax_(gint *n, gfloat  *x, gint *incx) ;
 extern gint    izamax_(gint *n, gdouble *x, gint *incx) ;
 extern gdouble ddot_  (gint *n, gdouble *x, gint *incx, 
 		       gdouble *y, gint *incy) ;
@@ -165,6 +175,11 @@ extern void    zaxpy_(gint *n,
 		      gdouble *y, gint *incy) ;
 
 /*macros wrapping BLAS calls*/
+
+/* index of maximum absolute value of vector */
+#define blaswrap_idamax(_n,_x,_incx) idamax_(&(_n),(_x),&(_incx))
+#define blaswrap_isamax(_n,_x,_incx) isamax_(&(_n),(_x),&(_incx))
+#define blaswrap_izamax(_n,_x,_incx) izamax_(&(_n),(_x),&(_incx))
 
 /* copy x into y */
 #define blaswrap_dcopy(_n,_x,_strx,_y,_stry)	\
@@ -208,7 +223,6 @@ extern void    zaxpy_(gint *n,
     _z = zdotu_(&(_n), (_x), &(_strx), (_y), &(_stry)) ;	\
     (_out)[0] = _z.dat[0] ; (_out)[1] = _z.dat[1] ;		\
   } while (0) 
-
   
 /* y := y + a*x */
 #define blaswrap_saxpy(_n,_a,_x,_strx,_y,_stry)		\
@@ -258,12 +272,12 @@ extern void    zaxpy_(gint *n,
 
 #define blaswrap_dgbmv(_t,_m,_n,_kl,_ku,_al,_A,_lda,_x,_incx,_bt,_y,_incy) \
   do {									\
-  if ((_t) == TRUE ) {							\
-    g_assert_not_reached() ; /*untested code*/				\
-  } else {								\
-    dgbmv_("T", &(_m), &(_n), &(_kl), &(_ku), &(_al), (_A), &(_lda),	\
-	   (_x), &(_incx), &(_bt), (_y), &(_incy)) ;			\
-  }									\
+    if ((_t) == TRUE ) {						\
+      g_assert_not_reached() ; /*untested code*/			\
+    } else {								\
+      dgbmv_("T", &(_m), &(_n), &(_kl), &(_ku), &(_al), (_A), &(_lda),	\
+	     (_x), &(_incx), &(_bt), (_y), &(_incy)) ;			\
+    }									\
   } while (0) 
 
 /* y := al*A*x + bt*y, A symmetric */
