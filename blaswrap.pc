@@ -1,0 +1,29 @@
+/* This file is part of BLASWRAP, a set of wrappers for using Fortran
+ * BLAS in C programs.
+ *
+ * Copyright (C) 2020, 2021, 2024 Michael Carley
+ *
+ * BLASWRAP is free software: you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.  BLASWRAP is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY; without even
+ * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+ * PURPOSE.  See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with BLASWRAP.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+prefix=/home/michael/Codes
+exec_prefix=${prefix}
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: blaswrap
+Description: Wrapper for using FORTRAN BLAS in C code
+Version: 0.1.1
+Requires: glib-2.0
+##gthread-2.0
+Libs: -L${libdir} -lglib-2.0  -lblas -lm   -L/home/michael/Codes/lib -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0 -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0/../../.. -lgfortran -lm -lquadmath
+Cflags: -I${includedir}

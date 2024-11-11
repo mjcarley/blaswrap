@@ -105,6 +105,7 @@ AC_SUBST(LIBS)
 AC_SUBST(LDFLAGS)
 
 AC_CONFIG_FILES([
+blaswrap.pc
 Makefile
 src/Makefile
 src/blaswrap-config

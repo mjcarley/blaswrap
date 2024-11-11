@@ -132,6 +132,38 @@ extern void dpotrf_(char *uplo, gint *n, gdouble *A, gint *lda, gint *info) ;
 extern void cpotrf_(char *uplo, gint *n, gfloat *A, gint *lda, gint *info) ;
 extern void zpotrf_(char *uplo, gint *n, gdouble *A, gint *lda, gint *info) ;
 
+extern void spocon_(char *uplo, gint *n, gfloat *A, gint *lda,
+		    gfloat *anorm, gfloat *rcond, gfloat *work,
+		    gint *iwork, gint *info) ;
+extern void dpocon_(char *uplo, gint *n, gdouble *A, gint *lda,
+		    gdouble *anorm, gdouble *rcond, gdouble *work,
+		    gint *iwork, gint *info) ;
+extern void cpocon_(char *uplo, gint *n, gfloat *A, gint *lda,
+		    gfloat *anorm, gfloat *rcond, gfloat *work,
+		    gint *iwork, gint *info) ;
+extern void zpocon_(char *uplo, gint *n, gdouble *A, gint *lda,
+		    gdouble *anorm, gdouble *rcond, gdouble *work,
+		    gint *iwork, gint *info) ;
+
+extern gfloat  slansy_(char *norm, char *uplo, int *n, gfloat *A, gint *lda,
+		       gfloat *work) ;
+extern gdouble dlansy_(char *norm, char *uplo, int *n, gdouble *A, gint *lda,
+		       gdouble *work) ;
+extern gfloat  clansy_(char *norm, char *uplo, int *n, gfloat *A, gint *lda,
+		       gfloat *work) ;
+extern gdouble zlansy_(char *norm, char *uplo, int *n, gdouble *A, gint *lda,
+		       gdouble *work) ;
+
+/*solving linear system using Cholesky factorisation*/
+extern void spotrs_(char *uplo, gint *n, gint *nrhs, gfloat *A, gint *lda,
+		    gfloat *b, gint *ldb, gint *info) ;
+extern void dpotrs_(char *uplo, gint *n, gint *nrhs, gdouble *A, gint *lda,
+		    gdouble *b, gint *ldb, gint *info) ;
+extern void cpotrs_(char *uplo, gint *n, gint *nrhs, gfloat *A, gint *lda,
+		    gfloat *b, gint *ldb, gint *info) ;
+extern void zpotrs_(char *uplo, gint *n, gint *nrhs, gdouble *A, gint *lda,
+		    gdouble *b, gint *ldb, gint *info) ;
+
 extern void dscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;
 extern void sscal_(gint *n, gfloat  *da, gfloat  *dx, gint *incx) ;
 extern void zscal_(gint *n, gdouble *da, gdouble *dx, gint *incx) ;

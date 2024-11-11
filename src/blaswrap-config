@@ -2,7 +2,7 @@
 # src/blaswrap-config.  Generated from blaswrap-config.in by configure.
 
 blas_libs="@blas_libs@"
-blaswrap_cppflags=""
+blaswrap_cppflags="-I/home/michael/Codes/include"
 blaswrap_cflags="-g -O2 -Wall -Werror-implicit-function-declaration -Wstrict-prototypes -Wmissing-prototypes -Wmissing-declarations -I/usr/include/glib-2.0 -I/usr/lib64/glib-2.0/include"
 
 prefix=/home/michael/Codes
@@ -108,7 +108,7 @@ if test "$echo_cflags" = "yes"; then
     echo $blaswrap_cppflags $blaswrap_cflags
 fi
 if test "$echo_libs" = "yes"; then
-    blaswrap_libs="-lglib-2.0  -lblas -lm   -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0 -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0/../../.. -lgfortran -lm -lquadmath -lm $blaswrap_libs"
+    blaswrap_libs="-lglib-2.0  -lblas -lm   -L/home/michael/Codes/lib -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0 -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib64/gcc/x86_64-slackware-linux/11.2.0/../../.. -lgfortran -lm -lquadmath -lm $blaswrap_libs"
     blaswrap_libs=`uniquify "$blaswrap_libs"`
     echo ${blaswrap_libs}
 fi
