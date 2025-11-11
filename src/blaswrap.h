@@ -302,12 +302,24 @@ extern void    zaxpy_(gint *n,
     }									\
   } while (0)
 
+#define blaswrap_zgemv_c(_t,_m,_n,_al,_A,_lda,_x,_incx,_bt,_y,_incy)	\
+  do {									\
+    if ( ((_t) == TRUE) ) {						\
+      g_error("conjugate transpose not implemented for this operation") ; \
+    } else {								\
+      zgemv_("C",&(_n),&(_m),(_al),(_A),&(_lda),(_x),&(_incx),		\
+	     (_bt),(_y),&(_incy)) ;					\
+    }									\
+  } while (0)
+
 #define blaswrap_dgbmv(_t,_m,_n,_kl,_ku,_al,_A,_lda,_x,_incx,_bt,_y,_incy) \
   do {									\
     if ((_t) == TRUE ) {						\
-      g_assert_not_reached() ; /*untested code*/			\
+      g_assert_not_reached() ;						\
+      dgbmv_("N", &(_m), &(_n), &(_kl), &(_ku), &(_al), (_A), &(_lda),	\
+	     (_x), &(_incx), &(_bt), (_y), &(_incy)) ;			\
     } else {								\
-      dgbmv_("T", &(_m), &(_n), &(_kl), &(_ku), &(_al), (_A), &(_lda),	\
+      dgbmv_("N", &(_m), &(_n), &(_kl), &(_ku), &(_al), (_A), &(_lda),	\
 	     (_x), &(_incx), &(_bt), (_y), &(_incy)) ;			\
     }									\
   } while (0) 

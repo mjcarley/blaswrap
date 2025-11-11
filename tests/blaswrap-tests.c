@@ -43,6 +43,10 @@ gint matrix_vector_mul_z(gdouble *A, gint nr, gint nc,
 			 gdouble *x, gint incx,
 			 gdouble *y, gint incy,
 			 gdouble *al, gdouble *bt) ;
+gint matrix_vector_mul_conj_z(gdouble *A, gint nr, gint nc,
+			      gdouble *x, gint incx,
+			      gdouble *y, gint incy,
+			      gdouble *al, gdouble *bt) ;
 
 gint matrix_matrix_multiply_d(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gint lda, gint ldb, gdouble al, gdouble bt,
@@ -64,6 +68,11 @@ gint matrix_symmetric_multiply_test_f(gint n,
 				      gint incx, gint incy, gint incz) ;
 gint matrix_symmetric_multiply_test_z(gint n,
 				      gint incx, gint incy, gint incz) ;
+gint banded_matrix_d(gdouble *A, gint nr, gint nc, gint ku, gint kl) ;
+gint full_to_banded_rmajor(gdouble *B, gdouble *A, gint nr, gint nc,
+			   gint ku, gint kl, gint ldb) ;
+gint full_to_banded_cmajor(gdouble *B, gdouble *A, gint nr, gint nc,
+			   gint ku, gint kl, gint ldb) ;
 
 gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz)
 
@@ -133,9 +142,8 @@ gint matrix_multiply_test_z(gint nr, gint nc, gint incx, gint incy, gint incz)
     z[2*i*incz+1] = y[2*i*incy+1] ;
   }
     
-  al[0] = g_random_double() ; al[1] = g_random_double() ; 
-  bt[0] = g_random_double() ; bt[1] = g_random_double() ; 
-
+  al[0] = g_random_double() ; al[1] = g_random_double() ;
+  bt[0] = g_random_double() ; bt[1] = g_random_double() ;
   matrix_vector_mul_z(A, nr, nc, x, incx, y, incy, al, bt) ;
 
   blaswrap_zgemv(FALSE, nr, nc, al, A, nc, x, incx, bt, z, incz) ;
@@ -150,6 +158,26 @@ gint matrix_multiply_test_z(gint nr, gint nc, gint incx, gint incy, gint incz)
   
   fprintf(stderr, "plain error     : %lg\n", err) ;
 
+  /*set up for multiplication by conj(A) (not transposed)*/
+  for ( i = 0 ; i < nr ; i ++ ) {
+    z[2*i*incz+0] = y[2*i*incy+0] ;
+    z[2*i*incz+1] = y[2*i*incy+1] ;
+  }
+
+  matrix_vector_mul_conj_z(A, nr, nc, x, incx, y, incy, al, bt) ;
+
+  blaswrap_zgemv_c(FALSE, nr, nc, al, A, nc, x, incx, bt, z, incz) ;
+
+  err = 0.0 ;
+  for ( i = 0 ; i < nr ; i ++ ) {
+    err = MAX((z[i*2*incz+0]-y[i*2*incy+0])*(z[i*2*incz+0]-y[i*2*incy+0]) +
+	      (z[i*2*incz+1]-y[i*2*incy+1])*(z[i*2*incz+1]-y[i*2*incy+1]),
+	      err) ;
+  }
+  err = sqrt(err) ;
+  
+  fprintf(stderr, "conjugate error : %lg\n", err) ;
+  
   /*set up for transpose multiplication*/
   for ( i = 0 ; i < nc ; i ++ ) {
     z[2*i*incz+0] = x[2*i*incx+0] ;
@@ -563,11 +591,81 @@ static gint triangular_solve_test_d(gint n)
   return 0 ;
 }
 
+static gint banded_multiply_test_d(gint nr, gint nc)
+
+{
+  gdouble *A, *Ab, *x, *y, *z, al, bt, err ;
+  gint ku, kl, incx, incy, i, j, ldb ;
+
+  fprintf(stderr, "banded matrix vector multiplication\n") ;
+  fprintf(stderr, "[%dx%d] x [%d]\n", nr, nc, nc) ;
+  
+  incx = 2 ; incy = 3 ;
+
+  incy = 1 ;
+  
+  A  = (gdouble *)g_malloc0(nr*nc*sizeof(gdouble)) ;
+  Ab = (gdouble *)g_malloc0(nr*nc*sizeof(gdouble)) ;
+  x  = (gdouble *)g_malloc0(  nc*incx*sizeof(gdouble)) ;
+  y  = (gdouble *)g_malloc0(  nr*incy*sizeof(gdouble)) ;
+  z  = (gdouble *)g_malloc0(  nr*incy*sizeof(gdouble)) ;
+
+  ku = 3 ; kl = 4 ;  
+
+  al = g_random_double() ;
+  bt = g_random_double() ;
+
+  for ( ku = 0 ; ku < MIN(MIN(nr,nc)/2,5) ; ku ++ ) {
+    for ( kl = 0 ; kl < MIN(MIN(nr,nc)/2,5) ; kl ++ ) {
+  /* ku = 0 ; { kl = 0 ; { */
+      fprintf(stderr, "ku = %d, kl = %d\n", ku, kl) ;
+
+      ldb = ku + kl + 1 ;
+      
+      banded_matrix_d(A, nr, nc, ku, kl) ;
+  
+  /* for ( i = 0 ; i < nr ; i ++ ) { */
+  /*   for ( j = 0 ; j < nc ; j ++ ) { */
+  /*     fprintf(stderr, "%1.4lf ", A[i*nc+j]) ; */
+  /*   } */
+  /*   fprintf(stderr, "\n") ; */
+  /* } */
+  
+      random_matrix_d(x, 1, nc*incx, FALSE) ;
+      random_matrix_d(y, 1, nc*incy, FALSE) ;
+      memcpy(z, y, nc*incy*sizeof(gdouble)) ;
+  
+      blaswrap_dgemv(FALSE, nr, nc, al, A, nc, x, incx, bt, y, incy) ;
+
+      /* fprintf(stderr, "\n") ; */
+      /* for ( i = 0 ; i < nr ; i ++ ) { */
+      /*   for ( j = 0 ; j < nc ; j ++ ) { */
+      /*     fprintf(stderr, "%1.4lf ", Ab[j*nr+i]) ; */
+      /*   } */
+      /*   fprintf(stderr, "\n") ; */
+      /* } */
+      
+      /* full_to_banded_rmajor(Ab, A, nr, nc, ku, kl, ldb) ;   */
+      /* blaswrap_dgbmv(TRUE, nr, nc, kl, ku, al, Ab, ldb, x, incx, bt, z, incy) ; */
+      full_to_banded_cmajor(Ab, A, nr, nc, ku, kl, ldb) ;  
+      blaswrap_dgbmv(FALSE, nr, nc, kl, ku, al, Ab, ldb, x, incx, bt, z, incy) ;
+
+      err = 0.0 ;
+      for ( i = 0 ; i < nr ; i ++ ) {
+	err = MAX(err, fabs(y[i] - z[i])) ;
+      }
+      fprintf(stderr, "maximum error: %lg\n", err) ;
+    }
+  }
+  
+  return 0 ;
+}
+
 static gint parse_test(char *str)
 
 {
   char *tests[] = {"matrix_vector", "matrix_matrix", "symmetric",
-    "triangular", NULL} ;
+    "triangular", "banded", NULL} ;
   gint i ;
 
   for ( i = 0 ; tests[i] != NULL ; i ++ ) {
@@ -643,6 +741,12 @@ gint main(gint argc, char **argv)
   
   if ( test == 4 || test == -1 ) {
     triangular_solve_test_d(n) ;
+
+    if ( test > 0 ) return 0 ;
+  }
+
+  if ( test == 5 || test == -1 ) {
+    banded_multiply_test_d(m, n) ;
 
     if ( test > 0 ) return 0 ;
   }

@@ -1,6 +1,6 @@
 /* This file is part of BLASWRAP, a set of C wrappers for BLAS routines
  *
- * Copyright (C) 2020, 2024 Michael Carley
+ * Copyright (C) 2020, 2024, 2025 Michael Carley
  *
  * BLASWRAP is free software: you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by
@@ -55,7 +55,11 @@ gint matrix_transpose_z(gdouble *B, gdouble *A, gint nr, gint nc) ;
 gint matrix_matrix_multiply_z(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gint lda, gint ldb, gdouble *al, gdouble *bt,
 			      gdouble *C, gint ldc) ;
-
+gint banded_matrix_d(gdouble *A, gint nr, gint nc, gint ku, gint kl) ;
+gint full_to_banded_rmajor(gdouble *B, gdouble *A, gint nr, gint nc,
+			   gint ku, gint kl, gint ldb) ;
+gint full_to_banded_cmajor(gdouble *B, gdouble *A, gint nr, gint nc,
+			   gint ku, gint kl, gint ldb) ;
 
 gint random_matrix_d(gdouble *A, gint nr, gint nc, gboolean sym)
 
@@ -308,6 +312,37 @@ gint matrix_vector_mul_z(gdouble *A, gint nr, gint nc,
   return 0 ;
 }
 
+gint matrix_vector_mul_conj_z(gdouble *A, gint nr, gint nc,
+			      gdouble *x, gint incx,
+			      gdouble *y, gint incy,
+			      gdouble *al, gdouble *bt)
+
+/*
+  y := al*conj(A)*x + bt*y
+*/
+
+{
+  gint i, j ;
+  gdouble ar, ai ;
+  
+  for ( i = 0 ; i < nr ; i ++ ) {
+    ar = y[i*2*incy+0]*bt[0] - y[i*2*incy+1]*bt[1] ;
+    ai = y[i*2*incy+1]*bt[0] + y[i*2*incy+0]*bt[1] ;
+    /* ar = y[i*2*incy+0]*bt[0] + y[i*2*incy+1]*bt[1] ; */
+    /* ai = y[i*2*incy+1]*bt[0] - y[i*2*incy+0]*bt[1] ; */
+    y[i*2*incy+0] = ar ; y[i*2*incy+1] = ai ;
+    for ( j = 0 ; j < nc ; j ++ ) {
+      ar = A[i*2*nc+2*j+0]*x[j*2*incx+0] + A[i*2*nc+2*j+1]*x[j*2*incx+1] ;
+      ai = A[i*2*nc+2*j+0]*x[j*2*incx+1] - A[i*2*nc+2*j+1]*x[j*2*incx+0] ;
+
+      y[i*2*incy+0] += al[0]*ar - al[1]*ai ;
+      y[i*2*incy+1] += al[1]*ar + al[0]*ai ;
+    }
+  }
+  
+  return 0 ;
+}
+
 gint matrix_transpose_z(gdouble *B, gdouble *A, gint nr, gint nc)
 
 {
@@ -338,6 +373,103 @@ gint matrix_matrix_multiply_z(gdouble *A, gdouble *B, gint m, gint n, gint k,
   /*     } */
   /*   } */
   /* } */
+  
+  return 0 ;
+}
+
+gint banded_matrix_d(gdouble *A, gint nr, gint nc, gint ku, gint kl)
+
+{
+  gint i, j ;
+  
+  memset(A, 0, nr*nc*sizeof(gdouble)) ;
+
+  /*clunky but reliable*/
+  for ( i = 0 ; i < nr ; i ++ ) {
+    for ( j = 0 ; j < nc ; j ++ ) {
+      if ( ( j <= i + ku ) && ( j >= i - kl ) ) {
+	A[i*nc + j] = g_random_double() ;
+      }
+    }
+  }    
+  
+  return 0 ;
+}
+
+gint full_to_banded_cmajor(gdouble *B, gdouble *A, gint nr, gint nc,
+			   gint ku, gint kl, gint ldb)
+
+{
+  gint i, j, k, idx, jdx ;
+
+  /*leading diagonal*/
+  for ( i = 0 ; i < MIN(nc,nr) ; i ++ ) {
+    idx = i*nc + i ;
+    jdx = i*ldb + ku ;
+    
+    B[jdx] = A[idx] ;
+  }
+  
+  for ( k = 1 ; k <= kl ; k ++ ) {
+    for ( i = 0 ; i < MIN(nc,nr-k) ; i ++ ) {
+      idx = (i+k)*nc + i ;
+      jdx = i*ldb + k + ku ;
+      
+      B[jdx] = A[idx] ;
+    }
+  }
+
+  for ( k = 1 ; k <= ku ; k ++ ) {
+    for ( i = 0 ; i < MIN(nc-k,nr) ; i ++ ) {
+      idx = (i  )*nc + i + k ;
+      jdx = (i+k)*nc + ku - k ;
+
+      jdx = (i + k)*ldb + ku - k ;
+      
+      B[jdx] = A[idx] ;
+      /* fprintf(stderr, "%lg ", A[idx]) ; */
+    }
+    /* fprintf(stderr, "\n") ; */
+  }
+  
+  return 0 ;
+}
+
+gint full_to_banded_rmajor(gdouble *B, gdouble *A, gint nr, gint nc,
+			   gint ku, gint kl, gint ldb)
+
+{
+  gint i, j, k, idx, jdx ;
+
+  /*leading diagonal*/
+  for ( i = 0 ; i < MIN(nc,nr) ; i ++ ) {
+    idx = i*nc + i ;
+    jdx = i*ldb + ku ;
+    
+    B[jdx] = A[idx] ;
+  }
+  
+  for ( k = 1 ; k <= kl ; k ++ ) {
+    for ( i = 0 ; i < MIN(nc,nr-k) ; i ++ ) {
+      idx = (i+k)*nc + i ;
+      jdx = i*ldb + k + ku ;
+      
+      B[jdx] = A[idx] ;
+    }
+  }
+
+  for ( k = 1 ; k <= ku ; k ++ ) {
+    for ( i = 0 ; i < MIN(nc-k,nr) ; i ++ ) {
+      idx = (i  )*nc + i + k ;
+      jdx = (i+k)*nc + ku - k ;
+
+      jdx = (i + k)*ldb + ku - k ;
+      
+      B[jdx] = A[idx] ;
+      /* fprintf(stderr, "%lg ", A[idx]) ; */
+    }
+    /* fprintf(stderr, "\n") ; */
+  }
   
   return 0 ;
 }
