@@ -69,10 +69,10 @@ gint matrix_symmetric_multiply_test_f(gint n,
 gint matrix_symmetric_multiply_test_z(gint n,
 				      gint incx, gint incy, gint incz) ;
 gint banded_matrix_d(gdouble *A, gint nr, gint nc, gint ku, gint kl) ;
-gint full_to_banded_rmajor(gdouble *B, gdouble *A, gint nr, gint nc,
-			   gint ku, gint kl, gint ldb) ;
-gint full_to_banded_cmajor(gdouble *B, gdouble *A, gint nr, gint nc,
-			   gint ku, gint kl, gint ldb) ;
+gint full_to_banded_rmajor_d(gdouble *B, gdouble *A, gint nr, gint nc,
+			     gint ku, gint kl, gint ldb) ;
+gint full_to_banded_cmajor_d(gdouble *B, gdouble *A, gint nr, gint nc,
+			     gint ku, gint kl, gint ldb) ;
 
 gint matrix_multiply_test_d(gint nr, gint nc, gint incx, gint incy, gint incz)
 
@@ -595,7 +595,7 @@ static gint banded_multiply_test_d(gint nr, gint nc)
 
 {
   gdouble *A, *Ab, *x, *y, *z, al, bt, err ;
-  gint ku, kl, incx, incy, i, j, ldb ;
+  gint ku, kl, incx, incy, i, ldb ;
 
   fprintf(stderr, "banded matrix vector multiplication\n") ;
   fprintf(stderr, "[%dx%d] x [%d]\n", nr, nc, nc) ;
@@ -609,8 +609,6 @@ static gint banded_multiply_test_d(gint nr, gint nc)
   x  = (gdouble *)g_malloc0(  nc*incx*sizeof(gdouble)) ;
   y  = (gdouble *)g_malloc0(  nr*incy*sizeof(gdouble)) ;
   z  = (gdouble *)g_malloc0(  nr*incy*sizeof(gdouble)) ;
-
-  ku = 3 ; kl = 4 ;  
 
   al = g_random_double() ;
   bt = g_random_double() ;
@@ -645,9 +643,9 @@ static gint banded_multiply_test_d(gint nr, gint nc)
       /*   fprintf(stderr, "\n") ; */
       /* } */
       
-      /* full_to_banded_rmajor(Ab, A, nr, nc, ku, kl, ldb) ;   */
+      /* full_to_banded_rmajor_d(Ab, A, nr, nc, ku, kl, ldb) ; */
       /* blaswrap_dgbmv(TRUE, nr, nc, kl, ku, al, Ab, ldb, x, incx, bt, z, incy) ; */
-      full_to_banded_cmajor(Ab, A, nr, nc, ku, kl, ldb) ;  
+      full_to_banded_cmajor_d(Ab, A, nr, nc, ku, kl, ldb) ;
       blaswrap_dgbmv(FALSE, nr, nc, kl, ku, al, Ab, ldb, x, incx, bt, z, incy) ;
 
       err = 0.0 ;

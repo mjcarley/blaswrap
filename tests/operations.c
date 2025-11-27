@@ -56,10 +56,10 @@ gint matrix_matrix_multiply_z(gdouble *A, gdouble *B, gint m, gint n, gint k,
 			      gint lda, gint ldb, gdouble *al, gdouble *bt,
 			      gdouble *C, gint ldc) ;
 gint banded_matrix_d(gdouble *A, gint nr, gint nc, gint ku, gint kl) ;
-gint full_to_banded_rmajor(gdouble *B, gdouble *A, gint nr, gint nc,
-			   gint ku, gint kl, gint ldb) ;
-gint full_to_banded_cmajor(gdouble *B, gdouble *A, gint nr, gint nc,
-			   gint ku, gint kl, gint ldb) ;
+gint full_to_banded_rmajor_d(gdouble *B, gdouble *A, gint nr, gint nc,
+			     gint ku, gint kl, gint ldb) ;
+gint full_to_banded_cmajor_d(gdouble *B, gdouble *A, gint nr, gint nc,
+			     gint ku, gint kl, gint ldb) ;
 
 gint random_matrix_d(gdouble *A, gint nr, gint nc, gboolean sym)
 
@@ -328,8 +328,6 @@ gint matrix_vector_mul_conj_z(gdouble *A, gint nr, gint nc,
   for ( i = 0 ; i < nr ; i ++ ) {
     ar = y[i*2*incy+0]*bt[0] - y[i*2*incy+1]*bt[1] ;
     ai = y[i*2*incy+1]*bt[0] + y[i*2*incy+0]*bt[1] ;
-    /* ar = y[i*2*incy+0]*bt[0] + y[i*2*incy+1]*bt[1] ; */
-    /* ai = y[i*2*incy+1]*bt[0] - y[i*2*incy+0]*bt[1] ; */
     y[i*2*incy+0] = ar ; y[i*2*incy+1] = ai ;
     for ( j = 0 ; j < nc ; j ++ ) {
       ar = A[i*2*nc+2*j+0]*x[j*2*incx+0] + A[i*2*nc+2*j+1]*x[j*2*incx+1] ;
@@ -396,8 +394,8 @@ gint banded_matrix_d(gdouble *A, gint nr, gint nc, gint ku, gint kl)
   return 0 ;
 }
 
-gint full_to_banded_cmajor(gdouble *B, gdouble *A, gint nr, gint nc,
-			   gint ku, gint kl, gint ldb)
+gint full_to_banded_cmajor_d(gdouble *B, gdouble *A, gint nr, gint nc,
+			     gint ku, gint kl, gint ldb)
 
 {
   gint i, j, k, idx, jdx ;
@@ -435,8 +433,8 @@ gint full_to_banded_cmajor(gdouble *B, gdouble *A, gint nr, gint nc,
   return 0 ;
 }
 
-gint full_to_banded_rmajor(gdouble *B, gdouble *A, gint nr, gint nc,
-			   gint ku, gint kl, gint ldb)
+gint full_to_banded_rmajor_d(gdouble *B, gdouble *A, gint nr, gint nc,
+			     gint ku, gint kl, gint ldb)
 
 {
   gint i, j, k, idx, jdx ;
